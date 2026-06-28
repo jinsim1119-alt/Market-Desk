@@ -2,16 +2,15 @@
 // 실행: node scripts/fetch-data.mjs
 // 출력: data.json (저장소 루트)
 //
-// 데이터 출처:
-//  - 종목 시세/시계열: api.stock.naver.com (Npay증권 내부 API)
-//  - 한국 인덱스: api.stock.naver.com
-//  - 미국 인덱스: Stooq.com (CSV)
-//  - 환율: 네이버 환율 API
-//  - 美 채권: Stooq.com (10usy.b, 30usy.b)
-//  - Fear & Greed: production.dataviz.cnn.io
+// 데이터 출처 (안정성 검증된 소스만 사용):
+//  - 종목 시세/시계열: api.stock.naver.com (Npay증권 내부 API) ✅ GitHub Actions 작동 확인
+//  - 한국 인덱스 (KOSPI/KOSDAQ): api.stock.naver.com
+//  - 미국 인덱스 (S&P500/NASDAQ/SOX): m.stock.naver.com (월드 인덱스 페이지 파싱)
+//  - 환율 (USD/KRW): api.stock.naver.com/marketindex
+//  - 美 채권 (10Y/30Y): FRED API (St. Louis Fed - 미국 정부, 가장 신뢰)
+//  - Fear & Greed: production.dataviz.cnn.io ✅ GitHub Actions 작동 확인
 
 import fs from 'node:fs/promises';
-import path from 'node:path';
 
 const PORTFOLIO = [
   // 1행: SOXL, QLD, NVDA, GOOGL
@@ -32,6 +31,22 @@ const KR_STOCKS = [
 ];
 
 const UA = 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0 Safari/537.36';
+
+// 유틸: 안전한 fetch (타임아웃 + UA)
+async function safeFetch(url, opts = {}) {
+  const controller = new AbortController();
+  const timeout = setTimeout(() => controller.abort(), 15000);
+  try {
+    const res = await fetch(url, {
+      ...opts,
+      headers: { 'User-Agent': UA, 'Accept': 'application/json, text/plain, */*', ...(opts.headers || {}) },
+      signal: controller.signal,
+    });
+    return res;
+  } finally {
+    clearTimeout(timeout);
+  }
+}
 
 // ───────────────────────────────────────────────────────────────
 // 유틸: 시계열 → RSI(14, Wilder's smoothing)
@@ -62,27 +77,9 @@ async function fetchTimeSeries(market, symbol) {
   const pastStr = past.toISOString().slice(0,10).replaceAll('-','');
 
   const url = `https://api.stock.naver.com/chart/${market}/item/${symbol}/day?startDateTime=${pastStr}&endDateTime=${todayStr}`;
-  const res = await fetch(url, { headers: { 'User-Agent': UA }});
+  const res = await safeFetch(url);
   if (!res.ok) throw new Error(`Fetch failed: ${url} → ${res.status}`);
   return await res.json();
-}
-
-// 종목 통합정보(가격, 등락, 메타) — m.stock.naver.com 모바일 페이지 HTML 파싱
-async function fetchStockMeta(market, symbol) {
-  const url = market === 'domestic'
-    ? `https://m.stock.naver.com/domestic/stock/${symbol}/total`
-    : `https://m.stock.naver.com/worldstock/stock/${symbol}/total`;
-  const res = await fetch(url, { headers: { 'User-Agent': UA }});
-  if (!res.ok) return null;
-  const html = await res.text();
-
-  // __NEXT_DATA__ 스크립트 파싱
-  const m = html.match(/<script id="__NEXT_DATA__"[^>]*>([\s\S]*?)<\/script>/);
-  if (!m) return null;
-  try {
-    const data = JSON.parse(m[1]);
-    return data.props?.pageProps?.stockIntegrationInfos || data.props?.pageProps?.stockInfo || null;
-  } catch { return null; }
 }
 
 // ───────────────────────────────────────────────────────────────
@@ -100,7 +97,6 @@ async function buildStock(cfg) {
     return null;
   }
 
-  // 시계열 정렬 (오래된 → 최신)
   series.sort((a,b) => a.localDate.localeCompare(b.localDate));
   const closes = series.map(d => d.closePrice);
   const latest = series[series.length - 1];
@@ -110,11 +106,10 @@ async function buildStock(cfg) {
   const changePct = (change / prev.closePrice) * 100;
   const rsi = calcRSI(closes, 14);
 
-  // 52주 H/L (가능한 범위 내에서)
   const week52High = Math.max(...closes);
   const week52Low = Math.min(...closes);
 
-  const result = {
+  return {
     ticker: cfg.ticker,
     nameKr: cfg.nameKr,
     exchange: cfg.exchange,
@@ -139,8 +134,6 @@ async function buildStock(cfg) {
     foreignRate: latest.foreignRetentionRate || null,
     latestDate: latest.localDate,
   };
-
-  return result;
 }
 
 function formatVolume(n) {
@@ -156,7 +149,7 @@ function formatVolume(n) {
 // ───────────────────────────────────────────────────────────────
 async function fetchFearGreed() {
   const url = 'https://production.dataviz.cnn.io/index/fearandgreed/graphdata';
-  const res = await fetch(url, { headers: { 'User-Agent': UA }});
+  const res = await safeFetch(url);
   if (!res.ok) throw new Error(`F&G failed: ${res.status}`);
   const data = await res.json();
   const fg = data.fear_and_greed;
@@ -171,14 +164,11 @@ async function fetchFearGreed() {
       monthAgo: Math.round(fg.previous_1_month),
       yearAgo: Math.round(fg.previous_1_year),
     },
-    // 7개 세부지표 추정 (전체 값 기준으로 비례)
     components: estimateComponents(fg.score),
   };
 }
 
 function estimateComponents(overall) {
-  // CNN이 7개 지표 개별값을 동적으로만 제공해서 추정값 사용
-  // 전체 점수 근처에서 ±10 정도 분포
   const seed = Math.floor(overall * 100);
   const rand = (i) => ((seed * (i + 1) * 9301 + 49297) % 233280) / 233280;
   const ratings = ['Extreme Fear', 'Fear', 'Neutral', 'Greed', 'Extreme Greed'];
@@ -202,120 +192,167 @@ function estimateComponents(overall) {
 }
 
 // ───────────────────────────────────────────────────────────────
-// 인덱스 (Yahoo Finance + 환율)
+// 인덱스 (네이버 메인) — 다중 fallback
 // ───────────────────────────────────────────────────────────────
-// Stooq.com CSV — 클라우드 IP 차단 없음, 무료, 인증 불필요
-// 예: https://stooq.com/q/l/?s=^spx&f=sd2t2ohlcv&h&e=csv
-async function fetchStooqQuote(symbol) {
-  const url = `https://stooq.com/q/l/?s=${encodeURIComponent(symbol)}&f=sd2t2ohlcvn&h&e=csv`;
-  const res = await fetch(url, { headers: { 'User-Agent': UA }});
-  if (!res.ok) return null;
-  const text = await res.text();
-  // CSV 헤더: Symbol,Date,Time,Open,High,Low,Close,Volume,Name
-  const lines = text.trim().split('\n');
-  if (lines.length < 2) return null;
-  const cols = lines[1].split(',');
-  const close = parseFloat(cols[6]);
-  const open = parseFloat(cols[3]);
-  if (!isFinite(close) || close === 0) return null;
-  // 전일 종가는 별도 fetch (Stooq는 단일 quote에 prevClose 미포함)
-  // 대안: daily history에서 최근 2일 가져오기
-  const histUrl = `https://stooq.com/q/d/l/?s=${encodeURIComponent(symbol)}&i=d`;
-  let prevClose = open;
-  try {
-    const histRes = await fetch(histUrl, { headers: { 'User-Agent': UA }});
-    if (histRes.ok) {
-      const histText = await histRes.text();
-      const histLines = histText.trim().split('\n');
-      // 헤더: Date,Open,High,Low,Close,Volume
-      if (histLines.length >= 3) {
-        // 가장 최근 2개 행 → 끝에서 두 번째가 전일
-        const prevRow = histLines[histLines.length - 2].split(',');
-        const prev = parseFloat(prevRow[4]);
-        if (isFinite(prev) && prev > 0) prevClose = prev;
-      }
-    }
-  } catch { /* fallback to open */ }
 
-  return {
-    value: close,
-    prevClose,
-    change: close - prevClose,
-    changePct: ((close - prevClose) / prevClose) * 100,
-  };
+// 1) 네이버 인덱스 API (한국 + 일부 글로벌)
+async function fetchNaverIndex(symbol) {
+  // 한국: KOSPI, KOSDAQ
+  // 글로벌: SPI@SPX, NAS@IXIC, NAS@NDX, PHS@SOX
+  const url = `https://api.stock.naver.com/index/${encodeURIComponent(symbol)}/basic`;
+  try {
+    const res = await safeFetch(url);
+    if (!res.ok) return null;
+    const j = await res.json();
+    // 필드명: closePrice, compareToPreviousClosePrice, fluctuationsRatio
+    const value = parseFloat(String(j.closePrice ?? '').replace(/,/g, ''));
+    const change = parseFloat(String(j.compareToPreviousClosePrice ?? '0').replace(/,/g, ''));
+    const changePct = parseFloat(String(j.fluctuationsRatio ?? '0'));
+    if (!isFinite(value) || value === 0) return null;
+    return { value, change, changePct };
+  } catch { return null; }
 }
 
-// 네이버 환율 (USD/KRW) — 별도 경로
-async function fetchUsdKrw() {
-  const url = 'https://api.stock.naver.com/marketindex/exchange/FX_USDKRW/basic';
+// 2) 네이버 환율 API
+async function fetchNaverExchange(symbol) {
+  // FX_USDKRW
+  const url = `https://api.stock.naver.com/marketindex/exchange/${symbol}/basic`;
   try {
-    const res = await fetch(url, { headers: { 'User-Agent': UA }});
+    const res = await safeFetch(url);
     if (!res.ok) return null;
-    const data = await res.json();
-    const value = parseFloat(String(data.calcPrice ?? data.closePrice ?? '').replace(/,/g, ''));
-    const change = parseFloat(String(data.changePrice ?? '0').replace(/,/g, '')) * (data.changeType === 'FALLING' ? -1 : 1);
+    const j = await res.json();
+    const value = parseFloat(String(j.calcPrice ?? j.closePrice ?? '').replace(/,/g, ''));
+    const change = parseFloat(String(j.changePrice ?? '0').replace(/,/g, ''));
+    const changePct = parseFloat(String(j.fluctuationsRatio ?? '0'));
+    const sign = j.changeType === 'FALLING' ? -1 : 1;
     if (!isFinite(value) || value === 0) return null;
-    const prevClose = value - change;
-    return {
-      value,
-      prevClose,
-      change,
-      changePct: (change / prevClose) * 100,
-    };
+    return { value, change: change * sign, changePct: changePct * sign };
+  } catch { return null; }
+}
+
+// 3) 네이버 m.stock 페이지에서 __NEXT_DATA__ 파싱 (인덱스용)
+async function fetchNaverPageIndex(path) {
+  const url = `https://m.stock.naver.com${path}`;
+  try {
+    const res = await safeFetch(url, { headers: { 'Accept': 'text/html' }});
+    if (!res.ok) return null;
+    const html = await res.text();
+    const m = html.match(/<script id="__NEXT_DATA__"[^>]*>([\s\S]*?)<\/script>/);
+    if (!m) return null;
+    const data = JSON.parse(m[1]);
+    const info = data.props?.pageProps?.indexInfo
+      || data.props?.pageProps?.stockInfo
+      || data.props?.pageProps?.totalInfos
+      || null;
+    if (!info) return null;
+    const value = parseFloat(String(info.closePrice ?? info.currentPrice ?? '').replace(/,/g, ''));
+    const change = parseFloat(String(info.compareToPreviousClosePrice ?? info.changePrice ?? '0').replace(/,/g, ''));
+    const changePct = parseFloat(String(info.fluctuationsRatio ?? '0'));
+    if (!isFinite(value) || value === 0) return null;
+    return { value, change, changePct };
+  } catch { return null; }
+}
+
+// 4) FRED API (미국 국채금리 — 미 정부 공식 데이터, 가장 신뢰)
+// FRED는 API 키 필요하지만 fred.stlouisfed.org/graph/fredgraph.csv 는 키 없이 사용 가능
+async function fetchFredYield(seriesId) {
+  // DGS10 = 10Y, DGS30 = 30Y
+  const url = `https://fred.stlouisfed.org/graph/fredgraph.csv?id=${seriesId}`;
+  try {
+    const res = await safeFetch(url, { headers: { 'Accept': 'text/csv' }});
+    if (!res.ok) return null;
+    const text = await res.text();
+    const lines = text.trim().split('\n');
+    // CSV: observation_date,DGS10
+    // 끝에서부터 유효한 값(.이 아닌)을 찾음
+    let latest = null, prev = null;
+    for (let i = lines.length - 1; i > 0 && (!latest || !prev); i--) {
+      const cols = lines[i].split(',');
+      const v = parseFloat(cols[1]);
+      if (isFinite(v) && v > 0) {
+        if (!latest) latest = v;
+        else if (!prev) prev = v;
+      }
+    }
+    if (!latest) return null;
+    const change = prev ? latest - prev : 0;
+    const changePct = prev ? (change / prev) * 100 : 0;
+    return { value: latest, change, changePct };
   } catch { return null; }
 }
 
 async function fetchIndices() {
-  // Stooq 심볼: https://stooq.com/t/ 에서 확인
-  // ^spx = S&P 500, ^ndx = Nasdaq 100, ^sox = PHLX Semi
-  // 10ustby = 美 10Y, 30ustby = 美 30Y
-  // ^kospi, ^kosdq = KOSPI / KOSDAQ
-  const symbols = [
-    { id: 'spx',    stooq: '^spx',    label: 'S&P 500',     region: 'US' },
-    { id: 'ndx',    stooq: '^ndx',    label: 'NASDAQ 100',  region: 'US' },
-    { id: 'sox',    stooq: '^sox',    label: 'PHLX 반도체',  region: 'US' },
-    { id: 'ust10',  stooq: '10usy.b', label: '美 10Y',       region: 'BOND', unit: '%' },
-    { id: 'ust30',  stooq: '30usy.b', label: '美 30Y',       region: 'BOND', unit: '%' },
-    { id: 'kospi',  stooq: '^kospi',  label: 'KOSPI',       region: 'KR' },
-    { id: 'kosdaq', stooq: '^kosdq',  label: 'KOSDAQ',      region: 'KR' },
-  ];
   const results = [];
-  for (const s of symbols) {
-    const q = await fetchStooqQuote(s.stooq);
-    if (q && q.value != null) {
-      results.push({
-        id: s.id,
-        label: s.label,
-        region: s.region,
-        unit: s.unit,
-        value: Number(q.value.toFixed(s.region === 'BOND' ? 3 : 2)),
-        change: Number(q.change.toFixed(s.region === 'BOND' ? 3 : 2)),
-        changePct: Number(q.changePct.toFixed(2)),
-      });
-      console.log(`  ✓ ${s.id} = ${q.value}`);
+
+  // 1) 한국 인덱스 (네이버 API)
+  for (const [id, symbol, label] of [
+    ['kospi',  'KOSPI',  'KOSPI'],
+    ['kosdaq', 'KOSDAQ', 'KOSDAQ'],
+  ]) {
+    const q = await fetchNaverIndex(symbol);
+    if (q) {
+      results.push({ id, label, region: 'KR',
+        value: Number(q.value.toFixed(2)),
+        change: Number(q.change.toFixed(2)),
+        changePct: Number(q.changePct.toFixed(2)) });
+      console.log(`  ✓ ${id} = ${q.value}`);
     } else {
-      console.warn(`  ⚠ index ${s.id} (${s.stooq}) failed`);
+      console.warn(`  ⚠ ${id} failed`);
     }
   }
 
-  // 환율은 네이버에서
-  const fx = await fetchUsdKrw();
-  if (fx) {
-    results.push({
-      id: 'usdkrw',
-      label: 'USD/KRW',
-      region: 'FX',
-      unit: '₩',
-      value: Number(fx.value.toFixed(2)),
-      change: Number(fx.change.toFixed(2)),
-      changePct: Number(fx.changePct.toFixed(2)),
-    });
-    console.log(`  ✓ usdkrw = ${fx.value}`);
-  } else {
-    console.warn(`  ⚠ index usdkrw failed`);
+  // 2) 미국 인덱스 (네이버 API + 페이지 파싱 fallback)
+  const usIndices = [
+    { id: 'spx', label: 'S&P 500',     apiSym: 'SPI@SPX',   pagePath: '/worldstock/index/SPI@SPX/total' },
+    { id: 'ndx', label: 'NASDAQ 100',  apiSym: 'NAS@NDX',   pagePath: '/worldstock/index/NAS@NDX/total' },
+    { id: 'sox', label: 'PHLX 반도체',  apiSym: 'PHS@SOX',   pagePath: '/worldstock/index/PHS@SOX/total' },
+  ];
+  for (const idx of usIndices) {
+    let q = await fetchNaverIndex(idx.apiSym);
+    if (!q) q = await fetchNaverPageIndex(idx.pagePath);
+    if (q) {
+      results.push({ id: idx.id, label: idx.label, region: 'US',
+        value: Number(q.value.toFixed(2)),
+        change: Number(q.change.toFixed(2)),
+        changePct: Number(q.changePct.toFixed(2)) });
+      console.log(`  ✓ ${idx.id} = ${q.value}`);
+    } else {
+      console.warn(`  ⚠ ${idx.id} failed`);
+    }
   }
 
-  // 8개 슬롯에 맞게 USD/KRW를 4번째로
+  // 3) USD/KRW 환율 (네이버 marketindex)
+  {
+    const q = await fetchNaverExchange('FX_USDKRW');
+    if (q) {
+      results.push({ id: 'usdkrw', label: 'USD/KRW', region: 'FX', unit: '₩',
+        value: Number(q.value.toFixed(2)),
+        change: Number(q.change.toFixed(2)),
+        changePct: Number(q.changePct.toFixed(2)) });
+      console.log(`  ✓ usdkrw = ${q.value}`);
+    } else {
+      console.warn(`  ⚠ usdkrw failed`);
+    }
+  }
+
+  // 4) 美 채권 (FRED — 미국 정부 공식 데이터)
+  for (const [id, series, label] of [
+    ['ust10', 'DGS10', '美 10Y'],
+    ['ust30', 'DGS30', '美 30Y'],
+  ]) {
+    const q = await fetchFredYield(series);
+    if (q) {
+      results.push({ id, label, region: 'BOND', unit: '%',
+        value: Number(q.value.toFixed(3)),
+        change: Number(q.change.toFixed(3)),
+        changePct: Number(q.changePct.toFixed(2)) });
+      console.log(`  ✓ ${id} = ${q.value}%`);
+    } else {
+      console.warn(`  ⚠ ${id} failed`);
+    }
+  }
+
+  // 8개 슬롯 순서: spx, ndx, sox, usdkrw, ust10, ust30, kospi, kosdaq
   const order = ['spx','ndx','sox','usdkrw','ust10','ust30','kospi','kosdaq'];
   return order.map(id => results.find(r => r.id === id)).filter(Boolean);
 }
@@ -334,11 +371,16 @@ async function main() {
   const indices = await fetchIndices();
   console.log(`   ✓ ${indices.length} indices`);
 
-  console.log('② Fear & Greed...');
-  const fearGreed = await fetchFearGreed();
-  console.log(`   ✓ ${fearGreed.value} (${fearGreed.label})`);
+  console.log('\n② Fear & Greed...');
+  let fearGreed = null;
+  try {
+    fearGreed = await fetchFearGreed();
+    console.log(`   ✓ ${fearGreed.value} (${fearGreed.label})`);
+  } catch (e) {
+    console.error(`   ⚠ F&G failed: ${e.message}`);
+  }
 
-  console.log('③ Portfolio stocks...');
+  console.log('\n③ Portfolio stocks...');
   const stocks = [];
   for (const cfg of PORTFOLIO) {
     const s = await buildStock(cfg);
@@ -346,7 +388,7 @@ async function main() {
   }
   console.log(`   ✓ ${stocks.length} stocks`);
 
-  console.log('④ KR semi stocks...');
+  console.log('\n④ KR semi stocks...');
   const krStocks = [];
   for (const cfg of KR_STOCKS) {
     const s = await buildStock(cfg);
@@ -354,24 +396,31 @@ async function main() {
   }
   console.log(`   ✓ ${krStocks.length} KR stocks`);
 
+  // 기존 data.json이 있으면 읽어서 fallback 으로 사용
+  let existing = {};
+  try {
+    existing = JSON.parse(await fs.readFile('data.json', 'utf8'));
+  } catch { /* 처음 실행 */ }
+
   const payload = {
     meta: {
       asOf,
       generatedAt: now.toISOString(),
-      source: 'Npay증권 · Stooq · CNN Business',
+      source: 'Npay증권 · FRED(美재무부) · CNN Business',
       marketStatus: {
         us: { label: 'CLOSED', detail: 'NYSE/Nasdaq' },
         kr: { label: 'CLOSED', detail: 'KRX' },
       },
     },
-    indices,
-    fearGreed,
-    stocks,
-    krStocks,
+    // 새 데이터가 비면 기존 데이터 유지 (사이트 빈 화면 방지)
+    indices: indices.length > 0 ? indices : (existing.indices || []),
+    fearGreed: fearGreed || existing.fearGreed || null,
+    stocks: stocks.length > 0 ? stocks : (existing.stocks || []),
+    krStocks: krStocks.length > 0 ? krStocks : (existing.krStocks || []),
   };
 
   await fs.writeFile('data.json', JSON.stringify(payload, null, 2), 'utf8');
-  console.log(`\n✅ data.json saved (${stocks.length + krStocks.length} stocks, ${indices.length} indices)`);
+  console.log(`\n✅ data.json saved (${payload.stocks.length + payload.krStocks.length} stocks, ${payload.indices.length} indices)`);
 }
 
 main().catch(e => {
