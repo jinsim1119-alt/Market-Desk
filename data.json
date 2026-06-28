@@ -1,8 +1,8 @@
 {
   "meta": {
-    "asOf": "2026-06-28 17:34 KST",
-    "generatedAt": "2026-06-28T08:34:34.723Z",
-    "source": "Npay증권 · FRED(美재무부) · CNN Business",
+    "asOf": "2026-06-28 17:50 KST",
+    "generatedAt": "2026-06-28T08:50:17.362Z",
+    "source": "Npay증권 · CNN Business",
     "marketStatus": {
       "us": {
         "label": "CLOSED",
@@ -14,7 +14,24 @@
       }
     }
   },
-  "indices": [],
+  "indices": [
+    {
+      "id": "kospi",
+      "label": "KOSPI",
+      "region": "KR",
+      "value": 8411.21,
+      "change": -519.09,
+      "changePct": -5.81
+    },
+    {
+      "id": "kosdaq",
+      "label": "KOSDAQ",
+      "region": "KR",
+      "value": 851.37,
+      "change": -36.44,
+      "changePct": -4.1
+    }
+  ],
   "fearGreed": {
     "value": 25,
     "valueExact": 24.77,
@@ -72,6 +89,47 @@
     ]
   },
   "stocks": [
+    {
+      "ticker": "SOXL",
+      "nameKr": "Direxion 반도체 3X",
+      "exchange": "AMEX",
+      "currency": "USD",
+      "isETF": true,
+      "isLeveraged": "3x",
+      "price": 215.6,
+      "change": -37.01,
+      "changePct": -14.65,
+      "prevClose": 252.61,
+      "open": 226.24,
+      "dayHigh": 231.25,
+      "dayLow": 212.1,
+      "week52High": 300.77,
+      "week52Low": 40.62,
+      "volume": "52.0M",
+      "rsi": 49.31,
+      "sparkline": [
+        266.32,
+        280.54,
+        262.7,
+        182.54,
+        211.44,
+        201.68,
+        180.65,
+        223.99,
+        234.68,
+        272.5,
+        226.19,
+        233.86,
+        279.29,
+        300.77,
+        231.42,
+        229.57,
+        252.61,
+        215.6
+      ],
+      "foreignRate": null,
+      "latestDate": "20260626"
+    },
     {
       "ticker": "QLD",
       "nameKr": "ProShares 울트라 QQQ",
