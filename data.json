@@ -1,8 +1,8 @@
 {
   "meta": {
-    "asOf": "2026-06-28 17:50 KST",
-    "generatedAt": "2026-06-28T08:50:17.362Z",
-    "source": "Npay증권 · CNN Business",
+    "asOf": "2026-06-28 18:19 KST",
+    "generatedAt": "2026-06-28T09:19:58.029Z",
+    "source": "Npay · CNBC · ECB · CNN",
     "marketStatus": {
       "us": {
         "label": "CLOSED",
@@ -15,6 +15,57 @@
     }
   },
   "indices": [
+    {
+      "id": "spx",
+      "label": "S&P 500",
+      "region": "US",
+      "value": 7354.02,
+      "change": -3.47,
+      "changePct": -0.05
+    },
+    {
+      "id": "ndx",
+      "label": "NASDAQ 100",
+      "region": "US",
+      "value": 29118.24,
+      "change": -322.08,
+      "changePct": -1.09
+    },
+    {
+      "id": "sox",
+      "label": "PHLX 반도체",
+      "region": "US",
+      "value": 13203.57,
+      "change": -737.3,
+      "changePct": -5.29
+    },
+    {
+      "id": "usdkrw",
+      "label": "USD/KRW",
+      "region": "FX",
+      "unit": "₩",
+      "value": 1536.47,
+      "change": -6.45,
+      "changePct": -0.42
+    },
+    {
+      "id": "ust10",
+      "label": "美 10Y",
+      "region": "BOND",
+      "unit": "%",
+      "value": 4.376,
+      "change": -0.016,
+      "changePct": -0.36
+    },
+    {
+      "id": "ust30",
+      "label": "美 30Y",
+      "region": "BOND",
+      "unit": "%",
+      "value": 4.869,
+      "change": 0.01,
+      "changePct": 0.21
+    },
     {
       "id": "kospi",
       "label": "KOSPI",
