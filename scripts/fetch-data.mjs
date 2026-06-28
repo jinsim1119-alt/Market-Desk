@@ -2,27 +2,24 @@
 // 실행: node scripts/fetch-data.mjs
 // 출력: data.json (저장소 루트)
 //
-// 데이터 출처 (안정성 검증된 소스만 사용):
-//  - 종목 시세/시계열: api.stock.naver.com (Npay증권 내부 API) ✅ GitHub Actions 작동 확인
-//  - 한국 인덱스 (KOSPI/KOSDAQ): api.stock.naver.com
-//  - 미국 인덱스 (S&P500/NASDAQ/SOX): m.stock.naver.com (월드 인덱스 페이지 파싱)
-//  - 환율 (USD/KRW): api.stock.naver.com/marketindex
-//  - 美 채권 (10Y/30Y): FRED API (St. Louis Fed - 미국 정부, 가장 신뢰)
-//  - Fear & Greed: production.dataviz.cnn.io ✅ GitHub Actions 작동 확인
+// 데이터 출처 (실제 GitHub Actions에서 검증된 엔드포인트만 사용):
+//  - 종목 시세/시계열: api.stock.naver.com/chart/{market}/item/{symbol}/day ✅ 검증됨
+//  - 인덱스 시계열: api.stock.naver.com/chart/{market}/index/{symbol}/day
+//  - 환율 시계열: api.stock.naver.com/chart/foreign/marketindex/{symbol}/day
+//  - Fear & Greed: production.dataviz.cnn.io ✅ 검증됨
 
 import fs from 'node:fs/promises';
 
 const PORTFOLIO = [
-  // 1행: SOXL, QLD, NVDA, GOOGL
-  { ticker: 'SOXL',  market: 'foreign', symbol: 'SOXL',  nameKr: 'Direxion 반도체 3X',         exchange: 'AMEX',   currency: 'USD', isETF: true, isLeveraged: '3x' },
-  { ticker: 'QLD',   market: 'foreign', symbol: 'QLD',   nameKr: 'ProShares 울트라 QQQ',       exchange: 'AMEX',   currency: 'USD', isETF: true, isLeveraged: '2x' },
-  { ticker: 'NVDA',  market: 'foreign', symbol: 'NVDA.O',nameKr: '엔비디아',                    exchange: 'NASDAQ', currency: 'USD' },
-  { ticker: 'GOOGL', market: 'foreign', symbol: 'GOOGL.O',nameKr: '알파벳 A',                   exchange: 'NASDAQ', currency: 'USD' },
-  // 2행: TSLA, SPCX, TLTW, 473330
-  { ticker: 'TSLA',  market: 'foreign', symbol: 'TSLA.O',nameKr: '테슬라',                      exchange: 'NASDAQ', currency: 'USD' },
-  { ticker: 'SPCX',  market: 'foreign', symbol: 'SPCX.O',nameKr: '스페이스X',                   exchange: 'NASDAQ', currency: 'USD', isNewlyListed: true, ipoDate: '2026-06-12', ipoPrice: 135.00 },
-  { ticker: 'TLTW',  market: 'foreign', symbol: 'TLTW.K',nameKr: 'iShares 美20Y+ 커버드콜',     exchange: 'AMEX',   currency: 'USD', isETF: true },
-  { ticker: '473330',market: 'domestic',symbol: '473330',nameKr: 'SOL 美30Y국채커버드콜(합성)', exchange: 'KOSPI',  currency: 'KRW', isETF: true },
+  // SOXL은 .K(아멕스) suffix 필요할 수 있음
+  { ticker: 'SOXL',  market: 'foreign', symbol: 'SOXL.K', nameKr: 'Direxion 반도체 3X',         exchange: 'AMEX',   currency: 'USD', isETF: true, isLeveraged: '3x' },
+  { ticker: 'QLD',   market: 'foreign', symbol: 'QLD.K',  nameKr: 'ProShares 울트라 QQQ',       exchange: 'AMEX',   currency: 'USD', isETF: true, isLeveraged: '2x' },
+  { ticker: 'NVDA',  market: 'foreign', symbol: 'NVDA.O', nameKr: '엔비디아',                    exchange: 'NASDAQ', currency: 'USD' },
+  { ticker: 'GOOGL', market: 'foreign', symbol: 'GOOGL.O',nameKr: '알파벳 A',                    exchange: 'NASDAQ', currency: 'USD' },
+  { ticker: 'TSLA',  market: 'foreign', symbol: 'TSLA.O', nameKr: '테슬라',                      exchange: 'NASDAQ', currency: 'USD' },
+  { ticker: 'SPCX',  market: 'foreign', symbol: 'SPCX.O', nameKr: '스페이스X',                   exchange: 'NASDAQ', currency: 'USD', isNewlyListed: true, ipoDate: '2026-06-12', ipoPrice: 135.00 },
+  { ticker: 'TLTW',  market: 'foreign', symbol: 'TLTW.K', nameKr: 'iShares 美20Y+ 커버드콜',      exchange: 'AMEX',   currency: 'USD', isETF: true },
+  { ticker: '473330',market: 'domestic',symbol: '473330', nameKr: 'SOL 美30Y국채커버드콜(합성)',  exchange: 'KOSPI',  currency: 'KRW', isETF: true },
 ];
 
 const KR_STOCKS = [
@@ -32,24 +29,88 @@ const KR_STOCKS = [
 
 const UA = 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0 Safari/537.36';
 
-// 유틸: 안전한 fetch (타임아웃 + UA)
 async function safeFetch(url, opts = {}) {
   const controller = new AbortController();
   const timeout = setTimeout(() => controller.abort(), 15000);
   try {
-    const res = await fetch(url, {
+    return await fetch(url, {
       ...opts,
-      headers: { 'User-Agent': UA, 'Accept': 'application/json, text/plain, */*', ...(opts.headers || {}) },
+      headers: {
+        'User-Agent': UA,
+        'Accept': 'application/json, text/plain, */*',
+        'Referer': 'https://m.stock.naver.com/',
+        ...(opts.headers || {}),
+      },
       signal: controller.signal,
     });
-    return res;
   } finally {
     clearTimeout(timeout);
   }
 }
 
 // ───────────────────────────────────────────────────────────────
-// 유틸: 시계열 → RSI(14, Wilder's smoothing)
+// 시계열 (chart API) — 검증된 유일한 경로
+// ───────────────────────────────────────────────────────────────
+function dateRange(daysBack = 90) {
+  const today = new Date();
+  const todayStr = today.toISOString().slice(0,10).replaceAll('-','');
+  const past = new Date(today.getTime() - daysBack * 24 * 60 * 60 * 1000);
+  const pastStr = past.toISOString().slice(0,10).replaceAll('-','');
+  return { todayStr, pastStr };
+}
+
+// 차트 API에서 시계열 가져오기 (item/index/marketindex 공용)
+async function fetchChartSeries(path) {
+  const { todayStr, pastStr } = dateRange(90);
+  const url = `https://api.stock.naver.com/chart/${path}/day?startDateTime=${pastStr}&endDateTime=${todayStr}`;
+  try {
+    const res = await safeFetch(url);
+    if (!res.ok) {
+      console.warn(`    HTTP ${res.status}: ${url}`);
+      return null;
+    }
+    const data = await res.json();
+    if (!Array.isArray(data) || data.length === 0) {
+      console.warn(`    Empty response: ${url}`);
+      return null;
+    }
+    return data;
+  } catch (e) {
+    console.warn(`    Fetch error: ${e.message}: ${url}`);
+    return null;
+  }
+}
+
+// 시계열 → { value, change, changePct, sparkline, week52H/L }
+function seriesToQuote(series) {
+  if (!series || series.length === 0) return null;
+  // 정렬: 오래된 → 최신
+  series.sort((a,b) => (a.localDate || '').localeCompare(b.localDate || ''));
+  const closes = series.map(d => d.closePrice).filter(v => isFinite(v) && v > 0);
+  if (closes.length === 0) return null;
+  const latest = series[series.length - 1];
+  const prev = series[series.length - 2] || latest;
+  const value = latest.closePrice;
+  const prevClose = prev.closePrice;
+  const change = value - prevClose;
+  const changePct = prevClose ? (change / prevClose) * 100 : 0;
+  return {
+    value, prevClose, change, changePct,
+    closes,
+    sparkline: closes.slice(-18),
+    latestDate: latest.localDate,
+    open: latest.openPrice,
+    high: latest.highPrice,
+    low: latest.lowPrice,
+    volume: latest.accumulatedTradingVolume,
+    foreignRate: latest.foreignRetentionRate,
+    week52High: Math.max(...closes),
+    week52Low: Math.min(...closes),
+  };
+}
+
+// ───────────────────────────────────────────────────────────────
+// RSI(14, Wilder)
 // ───────────────────────────────────────────────────────────────
 function calcRSI(closes, period = 14) {
   if (!closes || closes.length < period + 1) return null;
@@ -69,46 +130,49 @@ function calcRSI(closes, period = 14) {
   return 100 - (100 / (1 + avgGain/avgLoss));
 }
 
-// 최근 60거래일 시계열 가져오기
-async function fetchTimeSeries(market, symbol) {
-  const today = new Date();
-  const todayStr = today.toISOString().slice(0,10).replaceAll('-','');
-  const past = new Date(today.getTime() - 90 * 24 * 60 * 60 * 1000);
-  const pastStr = past.toISOString().slice(0,10).replaceAll('-','');
-
-  const url = `https://api.stock.naver.com/chart/${market}/item/${symbol}/day?startDateTime=${pastStr}&endDateTime=${todayStr}`;
-  const res = await safeFetch(url);
-  if (!res.ok) throw new Error(`Fetch failed: ${url} → ${res.status}`);
-  return await res.json();
+function formatVolume(n) {
+  if (!n) return '—';
+  if (n >= 1e8) return (n/1e8).toFixed(1) + '억';
+  if (n >= 1e6) return (n/1e6).toFixed(1) + 'M';
+  if (n >= 1e3) return (n/1e3).toFixed(1) + 'K';
+  return String(n);
 }
 
 // ───────────────────────────────────────────────────────────────
-// 종목별 데이터 통합
+// 종목 빌드 (foreign 종목은 .K/.O 모두 시도)
 // ───────────────────────────────────────────────────────────────
-async function buildStock(cfg) {
-  console.log(`  → fetching ${cfg.ticker}...`);
-  const series = await fetchTimeSeries(cfg.market, cfg.symbol).catch(e => {
-    console.error(`    ! timeseries failed: ${e.message}`);
-    return [];
-  });
+async function fetchStockSeries(market, symbol) {
+  // 1차 시도
+  let series = await fetchChartSeries(`${market}/item/${symbol}`);
+  if (series && series.length > 0) return series;
 
-  if (!series || series.length === 0) {
-    console.warn(`    ⚠ no data for ${cfg.ticker}`);
+  // foreign이면 suffix 변형 시도 (.K ↔ .O ↔ 없음)
+  if (market === 'foreign') {
+    const base = symbol.replace(/\.(K|O)$/, '');
+    const variants = symbol.endsWith('.K')
+      ? [base + '.O', base]
+      : symbol.endsWith('.O')
+      ? [base + '.K', base]
+      : [base + '.K', base + '.O'];
+    for (const v of variants) {
+      console.log(`    retry with ${v}...`);
+      series = await fetchChartSeries(`${market}/item/${v}`);
+      if (series && series.length > 0) return series;
+    }
+  }
+  return null;
+}
+
+async function buildStock(cfg) {
+  console.log(`  → ${cfg.ticker} (${cfg.symbol})`);
+  const series = await fetchStockSeries(cfg.market, cfg.symbol);
+  const q = seriesToQuote(series);
+  if (!q) {
+    console.warn(`    ⚠ no data`);
     return null;
   }
-
-  series.sort((a,b) => a.localDate.localeCompare(b.localDate));
-  const closes = series.map(d => d.closePrice);
-  const latest = series[series.length - 1];
-  const prev = series[series.length - 2] || latest;
-
-  const change = latest.closePrice - prev.closePrice;
-  const changePct = (change / prev.closePrice) * 100;
-  const rsi = calcRSI(closes, 14);
-
-  const week52High = Math.max(...closes);
-  const week52Low = Math.min(...closes);
-
+  const rsi = calcRSI(q.closes, 14);
+  console.log(`    ✓ ${q.value} (${q.changePct.toFixed(2)}%)`);
   return {
     ticker: cfg.ticker,
     nameKr: cfg.nameKr,
@@ -119,29 +183,73 @@ async function buildStock(cfg) {
     isNewlyListed: cfg.isNewlyListed,
     ipoDate: cfg.ipoDate,
     ipoPrice: cfg.ipoPrice,
-    price: latest.closePrice,
-    change: Number(change.toFixed(cfg.currency === 'KRW' ? 0 : 2)),
-    changePct: Number(changePct.toFixed(2)),
-    prevClose: prev.closePrice,
-    open: latest.openPrice,
-    dayHigh: latest.highPrice,
-    dayLow: latest.lowPrice,
-    week52High,
-    week52Low,
-    volume: formatVolume(latest.accumulatedTradingVolume),
+    price: q.value,
+    change: Number(q.change.toFixed(cfg.currency === 'KRW' ? 0 : 2)),
+    changePct: Number(q.changePct.toFixed(2)),
+    prevClose: q.prevClose,
+    open: q.open,
+    dayHigh: q.high,
+    dayLow: q.low,
+    week52High: q.week52High,
+    week52Low: q.week52Low,
+    volume: formatVolume(q.volume),
     rsi: rsi !== null ? Number(rsi.toFixed(2)) : null,
-    sparkline: closes.slice(-18),
-    foreignRate: latest.foreignRetentionRate || null,
-    latestDate: latest.localDate,
+    sparkline: q.sparkline,
+    foreignRate: q.foreignRate || null,
+    latestDate: q.latestDate,
   };
 }
 
-function formatVolume(n) {
-  if (!n) return '—';
-  if (n >= 1e8) return (n/1e8).toFixed(1) + '억';
-  if (n >= 1e6) return (n/1e6).toFixed(1) + 'M';
-  if (n >= 1e3) return (n/1e3).toFixed(1) + 'K';
-  return String(n);
+// ───────────────────────────────────────────────────────────────
+// 인덱스 빌드 (chart API의 index/marketindex 경로)
+// ───────────────────────────────────────────────────────────────
+async function buildIndex(spec) {
+  console.log(`  → ${spec.id} (${spec.path})`);
+  const series = await fetchChartSeries(spec.path);
+  const q = seriesToQuote(series);
+  if (!q) {
+    console.warn(`    ⚠ no data`);
+    return null;
+  }
+  const precision = spec.region === 'BOND' ? 3 : 2;
+  console.log(`    ✓ ${q.value} (${q.changePct.toFixed(2)}%)`);
+  return {
+    id: spec.id,
+    label: spec.label,
+    region: spec.region,
+    unit: spec.unit,
+    value: Number(q.value.toFixed(precision)),
+    change: Number(q.change.toFixed(precision)),
+    changePct: Number(q.changePct.toFixed(2)),
+  };
+}
+
+async function fetchIndices() {
+  // 모두 /chart/ 경로 — 종목과 동일한 검증된 엔드포인트
+  const specs = [
+    // 한국
+    { id: 'kospi',  label: 'KOSPI',       region: 'KR',   path: 'domestic/index/KOSPI' },
+    { id: 'kosdaq', label: 'KOSDAQ',      region: 'KR',   path: 'domestic/index/KOSDAQ' },
+    // 미국 인덱스
+    { id: 'spx',    label: 'S&P 500',     region: 'US',   path: 'foreign/index/SPI@SPX' },
+    { id: 'ndx',    label: 'NASDAQ 100',  region: 'US',   path: 'foreign/index/NAS@NDX' },
+    { id: 'sox',    label: 'PHLX 반도체',  region: 'US',   path: 'foreign/index/PHS@SOX' },
+    // 미국채 (네이버 코드: IRR@TNX, IRR@TYX)
+    { id: 'ust10',  label: '美 10Y',       region: 'BOND', unit: '%', path: 'foreign/index/IRR@TNX' },
+    { id: 'ust30',  label: '美 30Y',       region: 'BOND', unit: '%', path: 'foreign/index/IRR@TYX' },
+    // 환율
+    { id: 'usdkrw', label: 'USD/KRW',     region: 'FX',   unit: '₩', path: 'foreign/marketindex/FX_USDKRW' },
+  ];
+
+  const results = [];
+  for (const spec of specs) {
+    const r = await buildIndex(spec);
+    if (r) results.push(r);
+  }
+
+  // 표시 순서: spx, ndx, sox, usdkrw, ust10, ust30, kospi, kosdaq
+  const order = ['spx','ndx','sox','usdkrw','ust10','ust30','kospi','kosdaq'];
+  return order.map(id => results.find(r => r.id === id)).filter(Boolean);
 }
 
 // ───────────────────────────────────────────────────────────────
@@ -192,172 +300,6 @@ function estimateComponents(overall) {
 }
 
 // ───────────────────────────────────────────────────────────────
-// 인덱스 (네이버 메인) — 다중 fallback
-// ───────────────────────────────────────────────────────────────
-
-// 1) 네이버 인덱스 API (한국 + 일부 글로벌)
-async function fetchNaverIndex(symbol) {
-  // 한국: KOSPI, KOSDAQ
-  // 글로벌: SPI@SPX, NAS@IXIC, NAS@NDX, PHS@SOX
-  const url = `https://api.stock.naver.com/index/${encodeURIComponent(symbol)}/basic`;
-  try {
-    const res = await safeFetch(url);
-    if (!res.ok) return null;
-    const j = await res.json();
-    // 필드명: closePrice, compareToPreviousClosePrice, fluctuationsRatio
-    const value = parseFloat(String(j.closePrice ?? '').replace(/,/g, ''));
-    const change = parseFloat(String(j.compareToPreviousClosePrice ?? '0').replace(/,/g, ''));
-    const changePct = parseFloat(String(j.fluctuationsRatio ?? '0'));
-    if (!isFinite(value) || value === 0) return null;
-    return { value, change, changePct };
-  } catch { return null; }
-}
-
-// 2) 네이버 환율 API
-async function fetchNaverExchange(symbol) {
-  // FX_USDKRW
-  const url = `https://api.stock.naver.com/marketindex/exchange/${symbol}/basic`;
-  try {
-    const res = await safeFetch(url);
-    if (!res.ok) return null;
-    const j = await res.json();
-    const value = parseFloat(String(j.calcPrice ?? j.closePrice ?? '').replace(/,/g, ''));
-    const change = parseFloat(String(j.changePrice ?? '0').replace(/,/g, ''));
-    const changePct = parseFloat(String(j.fluctuationsRatio ?? '0'));
-    const sign = j.changeType === 'FALLING' ? -1 : 1;
-    if (!isFinite(value) || value === 0) return null;
-    return { value, change: change * sign, changePct: changePct * sign };
-  } catch { return null; }
-}
-
-// 3) 네이버 m.stock 페이지에서 __NEXT_DATA__ 파싱 (인덱스용)
-async function fetchNaverPageIndex(path) {
-  const url = `https://m.stock.naver.com${path}`;
-  try {
-    const res = await safeFetch(url, { headers: { 'Accept': 'text/html' }});
-    if (!res.ok) return null;
-    const html = await res.text();
-    const m = html.match(/<script id="__NEXT_DATA__"[^>]*>([\s\S]*?)<\/script>/);
-    if (!m) return null;
-    const data = JSON.parse(m[1]);
-    const info = data.props?.pageProps?.indexInfo
-      || data.props?.pageProps?.stockInfo
-      || data.props?.pageProps?.totalInfos
-      || null;
-    if (!info) return null;
-    const value = parseFloat(String(info.closePrice ?? info.currentPrice ?? '').replace(/,/g, ''));
-    const change = parseFloat(String(info.compareToPreviousClosePrice ?? info.changePrice ?? '0').replace(/,/g, ''));
-    const changePct = parseFloat(String(info.fluctuationsRatio ?? '0'));
-    if (!isFinite(value) || value === 0) return null;
-    return { value, change, changePct };
-  } catch { return null; }
-}
-
-// 4) FRED API (미국 국채금리 — 미 정부 공식 데이터, 가장 신뢰)
-// FRED는 API 키 필요하지만 fred.stlouisfed.org/graph/fredgraph.csv 는 키 없이 사용 가능
-async function fetchFredYield(seriesId) {
-  // DGS10 = 10Y, DGS30 = 30Y
-  const url = `https://fred.stlouisfed.org/graph/fredgraph.csv?id=${seriesId}`;
-  try {
-    const res = await safeFetch(url, { headers: { 'Accept': 'text/csv' }});
-    if (!res.ok) return null;
-    const text = await res.text();
-    const lines = text.trim().split('\n');
-    // CSV: observation_date,DGS10
-    // 끝에서부터 유효한 값(.이 아닌)을 찾음
-    let latest = null, prev = null;
-    for (let i = lines.length - 1; i > 0 && (!latest || !prev); i--) {
-      const cols = lines[i].split(',');
-      const v = parseFloat(cols[1]);
-      if (isFinite(v) && v > 0) {
-        if (!latest) latest = v;
-        else if (!prev) prev = v;
-      }
-    }
-    if (!latest) return null;
-    const change = prev ? latest - prev : 0;
-    const changePct = prev ? (change / prev) * 100 : 0;
-    return { value: latest, change, changePct };
-  } catch { return null; }
-}
-
-async function fetchIndices() {
-  const results = [];
-
-  // 1) 한국 인덱스 (네이버 API)
-  for (const [id, symbol, label] of [
-    ['kospi',  'KOSPI',  'KOSPI'],
-    ['kosdaq', 'KOSDAQ', 'KOSDAQ'],
-  ]) {
-    const q = await fetchNaverIndex(symbol);
-    if (q) {
-      results.push({ id, label, region: 'KR',
-        value: Number(q.value.toFixed(2)),
-        change: Number(q.change.toFixed(2)),
-        changePct: Number(q.changePct.toFixed(2)) });
-      console.log(`  ✓ ${id} = ${q.value}`);
-    } else {
-      console.warn(`  ⚠ ${id} failed`);
-    }
-  }
-
-  // 2) 미국 인덱스 (네이버 API + 페이지 파싱 fallback)
-  const usIndices = [
-    { id: 'spx', label: 'S&P 500',     apiSym: 'SPI@SPX',   pagePath: '/worldstock/index/SPI@SPX/total' },
-    { id: 'ndx', label: 'NASDAQ 100',  apiSym: 'NAS@NDX',   pagePath: '/worldstock/index/NAS@NDX/total' },
-    { id: 'sox', label: 'PHLX 반도체',  apiSym: 'PHS@SOX',   pagePath: '/worldstock/index/PHS@SOX/total' },
-  ];
-  for (const idx of usIndices) {
-    let q = await fetchNaverIndex(idx.apiSym);
-    if (!q) q = await fetchNaverPageIndex(idx.pagePath);
-    if (q) {
-      results.push({ id: idx.id, label: idx.label, region: 'US',
-        value: Number(q.value.toFixed(2)),
-        change: Number(q.change.toFixed(2)),
-        changePct: Number(q.changePct.toFixed(2)) });
-      console.log(`  ✓ ${idx.id} = ${q.value}`);
-    } else {
-      console.warn(`  ⚠ ${idx.id} failed`);
-    }
-  }
-
-  // 3) USD/KRW 환율 (네이버 marketindex)
-  {
-    const q = await fetchNaverExchange('FX_USDKRW');
-    if (q) {
-      results.push({ id: 'usdkrw', label: 'USD/KRW', region: 'FX', unit: '₩',
-        value: Number(q.value.toFixed(2)),
-        change: Number(q.change.toFixed(2)),
-        changePct: Number(q.changePct.toFixed(2)) });
-      console.log(`  ✓ usdkrw = ${q.value}`);
-    } else {
-      console.warn(`  ⚠ usdkrw failed`);
-    }
-  }
-
-  // 4) 美 채권 (FRED — 미국 정부 공식 데이터)
-  for (const [id, series, label] of [
-    ['ust10', 'DGS10', '美 10Y'],
-    ['ust30', 'DGS30', '美 30Y'],
-  ]) {
-    const q = await fetchFredYield(series);
-    if (q) {
-      results.push({ id, label, region: 'BOND', unit: '%',
-        value: Number(q.value.toFixed(3)),
-        change: Number(q.change.toFixed(3)),
-        changePct: Number(q.changePct.toFixed(2)) });
-      console.log(`  ✓ ${id} = ${q.value}%`);
-    } else {
-      console.warn(`  ⚠ ${id} failed`);
-    }
-  }
-
-  // 8개 슬롯 순서: spx, ndx, sox, usdkrw, ust10, ust30, kospi, kosdaq
-  const order = ['spx','ndx','sox','usdkrw','ust10','ust30','kospi','kosdaq'];
-  return order.map(id => results.find(r => r.id === id)).filter(Boolean);
-}
-
-// ───────────────────────────────────────────────────────────────
 // 메인
 // ───────────────────────────────────────────────────────────────
 async function main() {
@@ -369,7 +311,7 @@ async function main() {
 
   console.log('① Indices...');
   const indices = await fetchIndices();
-  console.log(`   ✓ ${indices.length} indices`);
+  console.log(`   → ${indices.length}/8 indices`);
 
   console.log('\n② Fear & Greed...');
   let fearGreed = null;
@@ -377,7 +319,7 @@ async function main() {
     fearGreed = await fetchFearGreed();
     console.log(`   ✓ ${fearGreed.value} (${fearGreed.label})`);
   } catch (e) {
-    console.error(`   ⚠ F&G failed: ${e.message}`);
+    console.error(`   ⚠ failed: ${e.message}`);
   }
 
   console.log('\n③ Portfolio stocks...');
@@ -386,7 +328,7 @@ async function main() {
     const s = await buildStock(cfg);
     if (s) stocks.push(s);
   }
-  console.log(`   ✓ ${stocks.length} stocks`);
+  console.log(`   → ${stocks.length}/${PORTFOLIO.length} stocks`);
 
   console.log('\n④ KR semi stocks...');
   const krStocks = [];
@@ -394,9 +336,9 @@ async function main() {
     const s = await buildStock(cfg);
     if (s) krStocks.push(s);
   }
-  console.log(`   ✓ ${krStocks.length} KR stocks`);
+  console.log(`   → ${krStocks.length}/${KR_STOCKS.length} KR stocks`);
 
-  // 기존 data.json이 있으면 읽어서 fallback 으로 사용
+  // 기존 data.json fallback (새 fetch가 비면 옛 데이터 유지)
   let existing = {};
   try {
     existing = JSON.parse(await fs.readFile('data.json', 'utf8'));
@@ -406,13 +348,12 @@ async function main() {
     meta: {
       asOf,
       generatedAt: now.toISOString(),
-      source: 'Npay증권 · FRED(美재무부) · CNN Business',
+      source: 'Npay증권 · CNN Business',
       marketStatus: {
         us: { label: 'CLOSED', detail: 'NYSE/Nasdaq' },
         kr: { label: 'CLOSED', detail: 'KRX' },
       },
     },
-    // 새 데이터가 비면 기존 데이터 유지 (사이트 빈 화면 방지)
     indices: indices.length > 0 ? indices : (existing.indices || []),
     fearGreed: fearGreed || existing.fearGreed || null,
     stocks: stocks.length > 0 ? stocks : (existing.stocks || []),
@@ -420,7 +361,8 @@ async function main() {
   };
 
   await fs.writeFile('data.json', JSON.stringify(payload, null, 2), 'utf8');
-  console.log(`\n✅ data.json saved (${payload.stocks.length + payload.krStocks.length} stocks, ${payload.indices.length} indices)`);
+  console.log(`\n✅ data.json saved`);
+  console.log(`   indices: ${payload.indices.length}, stocks: ${payload.stocks.length + payload.krStocks.length}`);
 }
 
 main().catch(e => {
