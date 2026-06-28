@@ -31,6 +31,14 @@ const fmtChange = (n, decimals = 2) => {
   });
 };
 
+// 최근 거래일 → "06.27" 형식 (YYYYMMDD 또는 YYYY-MM-DD 모두 지원)
+const formatLatestDate = (s) => {
+  if (!s) return '최근';
+  const str = String(s).replace(/-/g, '');
+  if (str.length >= 8) return str.slice(4, 6) + '.' + str.slice(6, 8);
+  return s;
+};
+
 // 색상 컨벤션에 따라 상승/하락 색상 결정
 const useColors = (convention) => {
   // convention: 'us' (상승 초록, 하락 빨강) or 'kr' (상승 빨강, 하락 파랑)
@@ -256,8 +264,8 @@ function StockCard({ stock, colors, density }) {
       <div className="sparkline-block">
         <Sparkline data={stock.sparkline} color={c} height={56} />
         <div className="sparkline-axis">
-          <span>10거래일 전</span>
-          <span>06.26 종가</span>
+          <span>{stock.sparkline ? stock.sparkline.length : 18}거래일 전</span>
+          <span>{stock.latestDate ? formatLatestDate(stock.latestDate) : '최근'} 종가</span>
         </div>
       </div>
 
