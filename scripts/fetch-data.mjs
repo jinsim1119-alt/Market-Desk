@@ -5,9 +5,9 @@
 // 데이터 출처:
 //  - 종목 시세/시계열: api.stock.naver.com (Npay증권 내부 API)
 //  - 한국 인덱스: api.stock.naver.com
-//  - 미국 인덱스: Yahoo Finance (query1.finance.yahoo.com)
-//  - 환율: 네이버 환율 페이지
-//  - 美 채권: Yahoo Finance (^TNX, ^TYX)
+//  - 미국 인덱스: Stooq.com (CSV)
+//  - 환율: 네이버 환율 API
+//  - 美 채권: Stooq.com (10usy.b, 30usy.b)
 //  - Fear & Greed: production.dataviz.cnn.io
 
 import fs from 'node:fs/promises';
@@ -204,36 +204,84 @@ function estimateComponents(overall) {
 // ───────────────────────────────────────────────────────────────
 // 인덱스 (Yahoo Finance + 환율)
 // ───────────────────────────────────────────────────────────────
-async function fetchYahooQuote(symbol) {
-  const url = `https://query1.finance.yahoo.com/v8/finance/chart/${encodeURIComponent(symbol)}?interval=1d&range=5d`;
+// Stooq.com CSV — 클라우드 IP 차단 없음, 무료, 인증 불필요
+// 예: https://stooq.com/q/l/?s=^spx&f=sd2t2ohlcv&h&e=csv
+async function fetchStooqQuote(symbol) {
+  const url = `https://stooq.com/q/l/?s=${encodeURIComponent(symbol)}&f=sd2t2ohlcvn&h&e=csv`;
   const res = await fetch(url, { headers: { 'User-Agent': UA }});
   if (!res.ok) return null;
-  const data = await res.json();
-  const r = data.chart?.result?.[0];
-  if (!r) return null;
-  const meta = r.meta;
+  const text = await res.text();
+  // CSV 헤더: Symbol,Date,Time,Open,High,Low,Close,Volume,Name
+  const lines = text.trim().split('\n');
+  if (lines.length < 2) return null;
+  const cols = lines[1].split(',');
+  const close = parseFloat(cols[6]);
+  const open = parseFloat(cols[3]);
+  if (!isFinite(close) || close === 0) return null;
+  // 전일 종가는 별도 fetch (Stooq는 단일 quote에 prevClose 미포함)
+  // 대안: daily history에서 최근 2일 가져오기
+  const histUrl = `https://stooq.com/q/d/l/?s=${encodeURIComponent(symbol)}&i=d`;
+  let prevClose = open;
+  try {
+    const histRes = await fetch(histUrl, { headers: { 'User-Agent': UA }});
+    if (histRes.ok) {
+      const histText = await histRes.text();
+      const histLines = histText.trim().split('\n');
+      // 헤더: Date,Open,High,Low,Close,Volume
+      if (histLines.length >= 3) {
+        // 가장 최근 2개 행 → 끝에서 두 번째가 전일
+        const prevRow = histLines[histLines.length - 2].split(',');
+        const prev = parseFloat(prevRow[4]);
+        if (isFinite(prev) && prev > 0) prevClose = prev;
+      }
+    }
+  } catch { /* fallback to open */ }
+
   return {
-    value: meta.regularMarketPrice,
-    prevClose: meta.chartPreviousClose,
-    change: meta.regularMarketPrice - meta.chartPreviousClose,
-    changePct: ((meta.regularMarketPrice - meta.chartPreviousClose) / meta.chartPreviousClose) * 100,
+    value: close,
+    prevClose,
+    change: close - prevClose,
+    changePct: ((close - prevClose) / prevClose) * 100,
   };
 }
 
+// 네이버 환율 (USD/KRW) — 별도 경로
+async function fetchUsdKrw() {
+  const url = 'https://api.stock.naver.com/marketindex/exchange/FX_USDKRW/basic';
+  try {
+    const res = await fetch(url, { headers: { 'User-Agent': UA }});
+    if (!res.ok) return null;
+    const data = await res.json();
+    const value = parseFloat(String(data.calcPrice ?? data.closePrice ?? '').replace(/,/g, ''));
+    const change = parseFloat(String(data.changePrice ?? '0').replace(/,/g, '')) * (data.changeType === 'FALLING' ? -1 : 1);
+    if (!isFinite(value) || value === 0) return null;
+    const prevClose = value - change;
+    return {
+      value,
+      prevClose,
+      change,
+      changePct: (change / prevClose) * 100,
+    };
+  } catch { return null; }
+}
+
 async function fetchIndices() {
+  // Stooq 심볼: https://stooq.com/t/ 에서 확인
+  // ^spx = S&P 500, ^ndx = Nasdaq 100, ^sox = PHLX Semi
+  // 10ustby = 美 10Y, 30ustby = 美 30Y
+  // ^kospi, ^kosdq = KOSPI / KOSDAQ
   const symbols = [
-    { id: 'spx',    yahoo: '^GSPC', label: 'S&P 500',     region: 'US' },
-    { id: 'ndx',    yahoo: '^NDX',  label: 'NASDAQ 100',  region: 'US' },
-    { id: 'sox',    yahoo: '^SOX',  label: 'PHLX 반도체',  region: 'US' },
-    { id: 'ust10',  yahoo: '^TNX',  label: '美 10Y',       region: 'BOND', unit: '%' },
-    { id: 'ust30',  yahoo: '^TYX',  label: '美 30Y',       region: 'BOND', unit: '%' },
-    { id: 'kospi',  yahoo: '^KS11', label: 'KOSPI',       region: 'KR' },
-    { id: 'kosdaq', yahoo: '^KQ11', label: 'KOSDAQ',      region: 'KR' },
-    { id: 'usdkrw', yahoo: 'KRW=X', label: 'USD/KRW',     region: 'FX', unit: '₩' },
+    { id: 'spx',    stooq: '^spx',    label: 'S&P 500',     region: 'US' },
+    { id: 'ndx',    stooq: '^ndx',    label: 'NASDAQ 100',  region: 'US' },
+    { id: 'sox',    stooq: '^sox',    label: 'PHLX 반도체',  region: 'US' },
+    { id: 'ust10',  stooq: '10usy.b', label: '美 10Y',       region: 'BOND', unit: '%' },
+    { id: 'ust30',  stooq: '30usy.b', label: '美 30Y',       region: 'BOND', unit: '%' },
+    { id: 'kospi',  stooq: '^kospi',  label: 'KOSPI',       region: 'KR' },
+    { id: 'kosdaq', stooq: '^kosdq',  label: 'KOSDAQ',      region: 'KR' },
   ];
   const results = [];
   for (const s of symbols) {
-    const q = await fetchYahooQuote(s.yahoo);
+    const q = await fetchStooqQuote(s.stooq);
     if (q && q.value != null) {
       results.push({
         id: s.id,
@@ -244,10 +292,29 @@ async function fetchIndices() {
         change: Number(q.change.toFixed(s.region === 'BOND' ? 3 : 2)),
         changePct: Number(q.changePct.toFixed(2)),
       });
+      console.log(`  ✓ ${s.id} = ${q.value}`);
     } else {
-      console.warn(`  ⚠ index ${s.id} failed`);
+      console.warn(`  ⚠ index ${s.id} (${s.stooq}) failed`);
     }
   }
+
+  // 환율은 네이버에서
+  const fx = await fetchUsdKrw();
+  if (fx) {
+    results.push({
+      id: 'usdkrw',
+      label: 'USD/KRW',
+      region: 'FX',
+      unit: '₩',
+      value: Number(fx.value.toFixed(2)),
+      change: Number(fx.change.toFixed(2)),
+      changePct: Number(fx.changePct.toFixed(2)),
+    });
+    console.log(`  ✓ usdkrw = ${fx.value}`);
+  } else {
+    console.warn(`  ⚠ index usdkrw failed`);
+  }
+
   // 8개 슬롯에 맞게 USD/KRW를 4번째로
   const order = ['spx','ndx','sox','usdkrw','ust10','ust30','kospi','kosdaq'];
   return order.map(id => results.find(r => r.id === id)).filter(Boolean);
@@ -291,7 +358,7 @@ async function main() {
     meta: {
       asOf,
       generatedAt: now.toISOString(),
-      source: 'Npay증권 · Yahoo Finance · CNN Business',
+      source: 'Npay증권 · Stooq · CNN Business',
       marketStatus: {
         us: { label: 'CLOSED', detail: 'NYSE/Nasdaq' },
         kr: { label: 'CLOSED', detail: 'KRX' },
