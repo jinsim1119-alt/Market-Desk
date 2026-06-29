@@ -1,7 +1,7 @@
 {
   "meta": {
-    "asOf": "2026-06-28 18:19 KST",
-    "generatedAt": "2026-06-28T09:19:58.029Z",
+    "asOf": "2026-06-29 21:49 KST",
+    "generatedAt": "2026-06-29T12:49:52.646Z",
     "source": "Npay · CNBC · ECB · CNN",
     "marketStatus": {
       "us": {
@@ -53,46 +53,46 @@
       "label": "美 10Y",
       "region": "BOND",
       "unit": "%",
-      "value": 4.376,
-      "change": -0.016,
-      "changePct": -0.36
+      "value": 4.382,
+      "change": 0.01,
+      "changePct": 0.23
     },
     {
       "id": "ust30",
       "label": "美 30Y",
       "region": "BOND",
       "unit": "%",
-      "value": 4.869,
-      "change": 0.01,
-      "changePct": 0.21
+      "value": 4.867,
+      "change": 0.002,
+      "changePct": 0.04
     },
     {
       "id": "kospi",
       "label": "KOSPI",
       "region": "KR",
-      "value": 8411.21,
-      "change": -519.09,
-      "changePct": -5.81
+      "value": 8394.65,
+      "change": -16.56,
+      "changePct": -0.2
     },
     {
       "id": "kosdaq",
       "label": "KOSDAQ",
       "region": "KR",
-      "value": 851.37,
-      "change": -36.44,
-      "changePct": -4.1
+      "value": 920.57,
+      "change": 69.2,
+      "changePct": 8.13
     }
   ],
   "fearGreed": {
     "value": 25,
     "valueExact": 24.77,
     "label": "Extreme Fear",
-    "asOf": "2026-06-26T23:59:57+00:00",
+    "asOf": "2026-06-29T12:34:16+00:00",
     "previous": {
       "yesterday": 25,
-      "weekAgo": 38,
-      "monthAgo": 61,
-      "yearAgo": 63
+      "weekAgo": 32,
+      "monthAgo": 60,
+      "yearAgo": 65
     },
     "components": [
       {
@@ -155,9 +155,9 @@
       "dayHigh": 231.25,
       "dayLow": 212.1,
       "week52High": 300.77,
-      "week52Low": 40.62,
+      "week52Low": 47.91,
       "volume": "52.0M",
-      "rsi": 49.31,
+      "rsi": 49.3,
       "sparkline": [
         266.32,
         280.54,
@@ -196,9 +196,9 @@
       "dayHigh": 91.52,
       "dayLow": 88.3,
       "week52High": 100.53,
-      "week52Low": 57.16,
+      "week52Low": 61,
       "volume": "4.5M",
-      "rsi": 45.77,
+      "rsi": 45.64,
       "sparkline": [
         100.53,
         100,
@@ -235,9 +235,9 @@
       "dayHigh": 195.55,
       "dayLow": 191.22,
       "week52High": 235.74,
-      "week52Low": 165.17,
+      "week52Low": 174.4,
       "volume": "1.8억",
-      "rsi": 37.99,
+      "rsi": 37.77,
       "sparkline": [
         222.82,
         214.75,
@@ -274,9 +274,9 @@
       "dayHigh": 346.36,
       "dayLow": 330.2,
       "week52High": 402.62,
-      "week52Low": 273.5,
+      "week52Low": 287.56,
       "volume": "1.1억",
-      "rsi": 34.12,
+      "rsi": 33.86,
       "sparkline": [
         361.85,
         358.99,
@@ -315,7 +315,7 @@
       "week52High": 445.27,
       "week52Low": 343.25,
       "volume": "53.4M",
-      "rsi": 41.49,
+      "rsi": 41.29,
       "sparkline": [
         423.74,
         423.7,
@@ -389,7 +389,7 @@
       "week52High": 22.65,
       "week52Low": 21.6,
       "volume": "1.1M",
-      "rsi": 63.1,
+      "rsi": 63.03,
       "sparkline": [
         22.07,
         22.02,
@@ -419,39 +419,39 @@
       "exchange": "KOSPI",
       "currency": "KRW",
       "isETF": true,
-      "price": 9535,
-      "change": 5,
-      "changePct": 0.05,
-      "prevClose": 9530,
-      "open": 9550,
-      "dayHigh": 9580,
-      "dayLow": 9515,
-      "week52High": 9535,
-      "week52Low": 8905,
-      "volume": "392.9K",
-      "rsi": 69.62,
+      "price": 9450,
+      "change": 0,
+      "changePct": 0,
+      "prevClose": 9450,
+      "open": 9415,
+      "dayHigh": 9470,
+      "dayLow": 9415,
+      "week52High": 9450,
+      "week52Low": 8753,
+      "volume": "287.1K",
+      "rsi": 71.61,
       "sparkline": [
-        9210,
-        9245,
-        9355,
-        9245,
-        9140,
-        9225,
-        9245,
-        9275,
-        9260,
-        9245,
-        9245,
-        9405,
-        9410,
+        9162,
+        9271,
+        9162,
+        9058,
+        9142,
+        9162,
+        9192,
+        9177,
+        9162,
+        9162,
+        9321,
+        9326,
+        9360,
+        9331,
+        9360,
         9445,
-        9415,
-        9445,
-        9530,
-        9535
+        9450,
+        9450
       ],
-      "foreignRate": 0.01,
-      "latestDate": "20260626"
+      "foreignRate": null,
+      "latestDate": "20260629"
     }
   ],
   "krStocks": [
@@ -460,19 +460,18 @@
       "nameKr": "삼성전자",
       "exchange": "KOSPI",
       "currency": "KRW",
-      "price": 339500,
-      "change": -19000,
-      "changePct": -5.3,
-      "prevClose": 358500,
-      "open": 354000,
-      "dayHigh": 356500,
-      "dayLow": 321500,
+      "price": 323000,
+      "change": -16500,
+      "changePct": -4.86,
+      "prevClose": 339500,
+      "open": 331000,
+      "dayHigh": 335500,
+      "dayLow": 316000,
       "week52High": 362500,
       "week52Low": 167200,
-      "volume": "35.2M",
-      "rsi": 54.69,
+      "volume": "35.1M",
+      "rsi": 50.76,
       "sparkline": [
-        360500,
         351500,
         329000,
         295500,
@@ -489,29 +488,29 @@
         310000,
         340500,
         358500,
-        339500
+        339500,
+        323000
       ],
-      "foreignRate": 47.37,
-      "latestDate": "20260626"
+      "foreignRate": 47.24,
+      "latestDate": "20260629"
     },
     {
       "ticker": "000660",
       "nameKr": "SK하이닉스",
       "exchange": "KOSPI",
       "currency": "KRW",
-      "price": 2673000,
-      "change": -244000,
-      "changePct": -8.36,
-      "prevClose": 2917000,
-      "open": 2850000,
-      "dayHigh": 2880000,
-      "dayLow": 2600000,
+      "price": 2628000,
+      "change": -45000,
+      "changePct": -1.68,
+      "prevClose": 2673000,
+      "open": 2636000,
+      "dayHigh": 2688000,
+      "dayLow": 2517000,
       "week52High": 2919000,
       "week52Low": 807000,
-      "volume": "7.2M",
-      "rsi": 59.79,
+      "volume": "5.2M",
+      "rsi": 58.44,
       "sparkline": [
-        2360000,
         2298000,
         2070000,
         1911000,
@@ -528,10 +527,11 @@
         2555000,
         2580000,
         2917000,
-        2673000
+        2673000,
+        2628000
       ],
-      "foreignRate": 50.77,
-      "latestDate": "20260626"
+      "foreignRate": 50.63,
+      "latestDate": "20260629"
     }
   ]
 }
