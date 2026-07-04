@@ -1,7 +1,7 @@
 {
   "meta": {
-    "asOf": "2026-07-03 17:38 KST",
-    "generatedAt": "2026-07-03T08:38:17.376Z",
+    "asOf": "2026-07-04 16:31 KST",
+    "generatedAt": "2026-07-04T07:31:00.834Z",
     "source": "Npay · CNBC · ECB · CNN",
     "marketStatus": {
       "us": {
@@ -36,17 +36,17 @@
       "label": "PHLX 반도체",
       "region": "US",
       "value": 12626.22,
-      "change": -727.06,
-      "changePct": -5.44
+      "change": 0,
+      "changePct": 0
     },
     {
       "id": "usdkrw",
       "label": "USD/KRW",
       "region": "FX",
       "unit": "₩",
-      "value": 1548.85,
-      "change": -9.24,
-      "changePct": -0.59
+      "value": 1531.23,
+      "change": -17.62,
+      "changePct": -1.14
     },
     {
       "id": "ust10",
