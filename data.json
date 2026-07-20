@@ -1,7 +1,7 @@
 {
   "meta": {
-    "asOf": "2026-07-19 08:37 KST",
-    "generatedAt": "2026-07-18T23:37:54.224Z",
+    "asOf": "2026-07-20 11:58 KST",
+    "generatedAt": "2026-07-20T02:58:09.037Z",
     "source": "Npay · CNBC · ECB · CNN",
     "marketStatus": {
       "us": {
@@ -54,8 +54,8 @@
       "region": "BOND",
       "unit": "%",
       "value": 4.551,
-      "change": -0.018,
-      "changePct": -0.39
+      "change": 0.01,
+      "changePct": 0.22
     },
     {
       "id": "ust30",
@@ -63,24 +63,24 @@
       "region": "BOND",
       "unit": "%",
       "value": 5.073,
-      "change": -0.024,
-      "changePct": -0.47
+      "change": 0.009,
+      "changePct": 0.18
     },
     {
       "id": "kospi",
       "label": "KOSPI",
       "region": "KR",
-      "value": 6820.6,
-      "change": -463.81,
-      "changePct": -6.37
+      "value": 6576.52,
+      "change": -244.08,
+      "changePct": -3.58
     },
     {
       "id": "kosdaq",
       "label": "KOSDAQ",
       "region": "KR",
-      "value": 791.84,
-      "change": -37.59,
-      "changePct": -4.53
+      "value": 754.1,
+      "change": -37.74,
+      "changePct": -4.77
     }
   ],
   "fearGreed": {
@@ -155,9 +155,9 @@
       "dayHigh": 144.4,
       "dayLow": 116.47,
       "week52High": 300.77,
-      "week52Low": 95.94,
+      "week52Low": 98.09,
       "volume": "1.1억",
-      "rsi": 39.44,
+      "rsi": 39.47,
       "sparkline": [
         231.42,
         229.57,
@@ -198,7 +198,7 @@
       "week52High": 100.53,
       "week52Low": 75.67,
       "volume": "5.4M",
-      "rsi": 41.29,
+      "rsi": 41.38,
       "sparkline": [
         91.22,
         90.37,
@@ -237,7 +237,7 @@
       "week52High": 235.74,
       "week52Low": 192.53,
       "volume": "1.4억",
-      "rsi": 48.1,
+      "rsi": 48.18,
       "sparkline": [
         200.04,
         199,
@@ -276,7 +276,7 @@
       "week52High": 402.62,
       "week52Low": 332.29,
       "volume": "30.0M",
-      "rsi": 42.45,
+      "rsi": 42.63,
       "sparkline": [
         346.13,
         345.29,
@@ -315,7 +315,7 @@
       "week52High": 445.27,
       "week52Low": 372.8,
       "volume": "31.4M",
-      "rsi": 42.5,
+      "rsi": 42.61,
       "sparkline": [
         381.61,
         375.53,
@@ -394,10 +394,10 @@
       "open": 21.81,
       "dayHigh": 21.8566,
       "dayLow": 21.78,
-      "week52High": 22.6,
+      "week52High": 22.545,
       "week52Low": 21.6,
       "volume": "1.1M",
-      "rsi": 37.32,
+      "rsi": 37.47,
       "sparkline": [
         22.27,
         22.49,
@@ -431,15 +431,14 @@
       "change": 0,
       "changePct": 0,
       "prevClose": 8840,
-      "open": 8840,
-      "dayHigh": 8885,
-      "dayLow": 8840,
+      "open": 8845,
+      "dayHigh": 8865,
+      "dayLow": 8820,
       "week52High": 9505,
       "week52Low": 8753,
-      "volume": "177.7K",
-      "rsi": 29.5,
+      "volume": "102.1K",
+      "rsi": 29.54,
       "sparkline": [
-        9331,
         9360,
         9445,
         9450,
@@ -456,10 +455,11 @@
         8975,
         8885,
         8840,
+        8840,
         8840
       ],
-      "foreignRate": 0.02,
-      "latestDate": "20260716"
+      "foreignRate": null,
+      "latestDate": "20260720"
     }
   ],
   "krStocks": [
@@ -468,19 +468,18 @@
       "nameKr": "삼성전자",
       "exchange": "KOSPI",
       "currency": "KRW",
-      "price": 255000,
-      "change": -24500,
-      "changePct": -8.77,
-      "prevClose": 279500,
-      "open": 264500,
-      "dayHigh": 265500,
-      "dayLow": 252500,
+      "price": 246500,
+      "change": -8500,
+      "changePct": -3.33,
+      "prevClose": 255000,
+      "open": 241000,
+      "dayHigh": 257500,
+      "dayLow": 240000,
       "week52High": 362500,
-      "week52Low": 214500,
-      "volume": "26.6M",
-      "rsi": 40.21,
+      "week52Low": 217500,
+      "volume": "14.4M",
+      "rsi": 38.69,
       "sparkline": [
-        310000,
         340500,
         358500,
         339500,
@@ -497,29 +496,29 @@
         254500,
         263000,
         279500,
-        255000
+        255000,
+        246500
       ],
-      "foreignRate": 46.6,
-      "latestDate": "20260716"
+      "foreignRate": 46.56,
+      "latestDate": "20260720"
     },
     {
       "ticker": "000660",
       "nameKr": "SK하이닉스",
       "exchange": "KOSPI",
       "currency": "KRW",
-      "price": 1842000,
-      "change": -240000,
-      "changePct": -11.53,
-      "prevClose": 2082000,
-      "open": 1902000,
-      "dayHigh": 1919000,
-      "dayLow": 1821000,
+      "price": 1788000,
+      "change": -54000,
+      "changePct": -2.93,
+      "prevClose": 1842000,
+      "open": 1745000,
+      "dayHigh": 1892000,
+      "dayLow": 1735000,
       "week52High": 2919000,
-      "week52Low": 1166000,
-      "volume": "5.5M",
-      "rsi": 40.56,
+      "week52Low": 1222000,
+      "volume": "3.7M",
+      "rsi": 39.45,
       "sparkline": [
-        2555000,
         2580000,
         2917000,
         2673000,
@@ -536,10 +535,11 @@
         1845000,
         1913000,
         2082000,
-        1842000
+        1842000,
+        1788000
       ],
-      "foreignRate": 52.44,
-      "latestDate": "20260716"
+      "foreignRate": 52.37,
+      "latestDate": "20260720"
     }
   ]
 }
