@@ -1,7 +1,7 @@
 {
   "meta": {
-    "asOf": "2026-08-15 06:20 KST",
-    "generatedAt": "2026-08-14T21:20:35.860Z",
+    "asOf": "2026-08-16 06:16 KST",
+    "generatedAt": "2026-08-15T21:16:22.160Z",
     "source": "Npay · CNBC · ECB · CNN",
     "marketStatus": {
       "us": {
@@ -87,7 +87,7 @@
     "value": 65,
     "valueExact": 64.97,
     "label": "Greed",
-    "asOf": "2026-08-14T21:03:24+00:00",
+    "asOf": "2026-08-14T23:59:53+00:00",
     "previous": {
       "yesterday": 66,
       "weekAgo": 64,
@@ -156,7 +156,7 @@
       "dayLow": 138.9,
       "week52High": 300.77,
       "week52Low": 91.99,
-      "volume": "44.6M",
+      "volume": "45.3M",
       "rsi": 49.55,
       "sparkline": [
         160.99,
@@ -236,7 +236,7 @@
       "dayLow": 224.5,
       "week52High": 225.3,
       "week52Low": 190.01,
-      "volume": "75.3M",
+      "volume": "75.7M",
       "rsi": 62.82,
       "sparkline": [
         212.06,
@@ -275,7 +275,7 @@
       "dayLow": 344.5,
       "week52High": 396.94,
       "week52Low": 317.69,
-      "volume": "17.6M",
+      "volume": "17.8M",
       "rsi": 46.66,
       "sparkline": [
         342.09,
@@ -314,7 +314,7 @@
       "dayLow": 335.3306,
       "week52High": 442.1,
       "week52Low": 298.32,
-      "volume": "45.2M",
+      "volume": "45.4M",
       "rsi": 48.88,
       "sparkline": [
         374.01,
@@ -356,7 +356,7 @@
       "dayLow": 135.5,
       "week52High": 201.8,
       "week52Low": 108.27,
-      "volume": "95.7M",
+      "volume": "96.7M",
       "rsi": 54.71,
       "sparkline": [
         115.26,
