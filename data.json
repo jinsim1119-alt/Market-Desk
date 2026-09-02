@@ -1,7 +1,7 @@
 {
   "meta": {
-    "asOf": "2026-09-02 07:57 KST",
-    "generatedAt": "2026-09-01T22:57:22.578Z",
+    "asOf": "2026-09-03 07:57 KST",
+    "generatedAt": "2026-09-02T22:57:12.074Z",
     "source": "Npay · CNBC · ECB · CNN",
     "marketStatus": {
       "us": {
@@ -19,78 +19,78 @@
       "id": "spx",
       "label": "S&P 500",
       "region": "US",
-      "value": 7631.47,
-      "change": -54.67,
-      "changePct": -0.71
+      "value": 7666.6,
+      "change": 35.13,
+      "changePct": 0.46
     },
     {
       "id": "ndx",
       "label": "NASDAQ 100",
       "region": "US",
-      "value": 29077.22,
-      "change": -379.75,
-      "changePct": -1.29
+      "value": 29143.33,
+      "change": 66.11,
+      "changePct": 0.23
     },
     {
       "id": "sox",
       "label": "PHLX 반도체",
       "region": "US",
-      "value": 11288.61,
-      "change": -246.44,
-      "changePct": -2.14
+      "value": 11339.25,
+      "change": 50.64,
+      "changePct": 0.45
     },
     {
       "id": "usdkrw",
       "label": "USD/KRW",
       "region": "FX",
       "unit": "₩",
-      "value": 1374.61,
-      "change": 6.58,
-      "changePct": 0.48
+      "value": 1362.56,
+      "change": -12.05,
+      "changePct": -0.88
     },
     {
       "id": "ust10",
       "label": "美 10Y",
       "region": "BOND",
       "unit": "%",
-      "value": 4.796,
-      "change": 0,
-      "changePct": 0
+      "value": 4.782,
+      "change": -0.012,
+      "changePct": -0.25
     },
     {
       "id": "ust30",
       "label": "美 30Y",
       "region": "BOND",
       "unit": "%",
-      "value": 5.267,
-      "change": 0,
-      "changePct": 0
+      "value": 5.26,
+      "change": -0.007,
+      "changePct": -0.13
     },
     {
       "id": "kospi",
       "label": "KOSPI",
       "region": "KR",
-      "value": 6835.8,
-      "change": 15.78,
-      "changePct": 0.23
+      "value": 6562.72,
+      "change": -273.08,
+      "changePct": -3.99
     },
     {
       "id": "kosdaq",
       "label": "KOSDAQ",
       "region": "KR",
-      "value": 821.25,
-      "change": -13.04,
-      "changePct": -1.56
+      "value": 803.98,
+      "change": -17.27,
+      "changePct": -2.1
     }
   ],
   "fearGreed": {
-    "value": 45,
-    "valueExact": 44.57,
+    "value": 33,
+    "valueExact": 33.23,
     "label": "Fear",
-    "asOf": "2026-09-01T22:37:16+00:00",
+    "asOf": "2026-09-02T22:39:32+00:00",
     "previous": {
-      "yesterday": 50,
-      "weekAgo": 57,
+      "yesterday": 45,
+      "weekAgo": 54,
       "monthAgo": 45,
       "yearAgo": 62
     },
@@ -98,43 +98,43 @@
       {
         "name": "Market Momentum",
         "desc": "S&P 500 vs 125일 이평선",
-        "value": 53,
-        "label": "Neutral"
+        "value": 36,
+        "label": "Fear"
       },
       {
         "name": "Stock Price Strength",
         "desc": "52주 신고가/신저가",
-        "value": 47,
-        "label": "Neutral"
+        "value": 25,
+        "label": "Extreme Fear"
       },
       {
         "name": "Stock Price Breadth",
         "desc": "McClellan Volume Summation",
-        "value": 41,
+        "value": 34,
         "label": "Fear"
       },
       {
         "name": "Put/Call Options",
         "desc": "5일 평균 풋콜 비율",
-        "value": 35,
-        "label": "Fear"
+        "value": 23,
+        "label": "Extreme Fear"
       },
       {
         "name": "Market Volatility",
         "desc": "VIX 및 50일 이평",
-        "value": 49,
-        "label": "Neutral"
+        "value": 32,
+        "label": "Fear"
       },
       {
         "name": "Safe Haven Demand",
         "desc": "주식 vs 채권 20일 수익률",
-        "value": 43,
+        "value": 41,
         "label": "Fear"
       },
       {
         "name": "Junk Bond Demand",
         "desc": "투자등급-정크본드 스프레드",
-        "value": 37,
+        "value": 30,
         "label": "Fear"
       }
     ]
@@ -147,19 +147,18 @@
       "currency": "USD",
       "isETF": true,
       "isLeveraged": "3x",
-      "price": 105.91,
-      "change": -6.88,
-      "changePct": -6.1,
-      "prevClose": 112.79,
-      "open": 106.355,
-      "dayHigh": 108.64,
-      "dayLow": 102.31,
+      "price": 106.35,
+      "change": 0.44,
+      "changePct": 0.42,
+      "prevClose": 105.91,
+      "open": 104.5,
+      "dayHigh": 108.07,
+      "dayLow": 101.34,
       "week52High": 300.77,
       "week52Low": 91.99,
-      "volume": "63.0M",
-      "rsi": 38.35,
+      "volume": "44.9M",
+      "rsi": 38.81,
       "sparkline": [
-        140.25,
         130,
         133,
         142.16,
@@ -176,10 +175,11 @@
         123.05,
         111.34,
         112.79,
-        105.91
+        105.91,
+        106.35
       ],
       "foreignRate": null,
-      "latestDate": "20260901"
+      "latestDate": "20260902"
     },
     {
       "ticker": "QLD",
@@ -188,19 +188,18 @@
       "currency": "USD",
       "isETF": true,
       "isLeveraged": "2x",
-      "price": 87.92,
-      "change": -2.32,
-      "changePct": -2.57,
-      "prevClose": 90.24,
-      "open": 87.86,
-      "dayHigh": 89.09,
-      "dayLow": 87.195,
-      "week52High": 100,
+      "price": 88.31,
+      "change": 0.39,
+      "changePct": 0.44,
+      "prevClose": 87.92,
+      "open": 87.78,
+      "dayHigh": 88.44,
+      "dayLow": 87.29,
+      "week52High": 99.18,
       "week52Low": 77.58,
-      "volume": "5.0M",
-      "rsi": 45.15,
+      "volume": "2.3M",
+      "rsi": 46.21,
       "sparkline": [
-        92.21,
         91.63,
         90.98,
         92.32,
@@ -217,29 +216,29 @@
         91.38,
         90.17,
         90.24,
-        87.92
+        87.92,
+        88.31
       ],
       "foreignRate": null,
-      "latestDate": "20260901"
+      "latestDate": "20260902"
     },
     {
       "ticker": "NVDA",
       "nameKr": "엔비디아",
       "exchange": "NASDAQ",
       "currency": "USD",
-      "price": 217.44,
-      "change": -3.34,
-      "changePct": -1.51,
-      "prevClose": 220.78,
-      "open": 216.75,
-      "dayHigh": 220.41,
-      "dayLow": 215.1,
+      "price": 224.41,
+      "change": 6.97,
+      "changePct": 3.21,
+      "prevClose": 217.44,
+      "open": 218.785,
+      "dayHigh": 227.95,
+      "dayLow": 218.48,
       "week52High": 227.98,
       "week52Low": 190.01,
-      "volume": "1.1억",
-      "rsi": 51.76,
+      "volume": "1.5억",
+      "rsi": 56.46,
       "sparkline": [
-        223.96,
         217.55,
         217.5,
         224.09,
@@ -256,29 +255,29 @@
         227.98,
         217.55,
         220.78,
-        217.44
+        217.44,
+        224.41
       ],
       "foreignRate": null,
-      "latestDate": "20260901"
+      "latestDate": "20260902"
     },
     {
       "ticker": "GOOGL",
       "nameKr": "알파벳 A",
       "exchange": "NASDAQ",
       "currency": "USD",
-      "price": 335.02,
-      "change": -4.33,
-      "changePct": -1.28,
-      "prevClose": 339.35,
-      "open": 336,
-      "dayHigh": 337.2,
-      "dayLow": 333.05,
+      "price": 337.12,
+      "change": 2.1,
+      "changePct": 0.63,
+      "prevClose": 335.02,
+      "open": 334.06,
+      "dayHigh": 340,
+      "dayLow": 332.82,
       "week52High": 377.65,
       "week52Low": 317.69,
-      "volume": "21.0M",
-      "rsi": 41.42,
+      "volume": "20.9M",
+      "rsi": 42.97,
       "sparkline": [
-        354.3,
         357.52,
         343.8,
         343.54,
@@ -295,29 +294,29 @@
         340.65,
         346.59,
         339.35,
-        335.02
+        335.02,
+        337.12
       ],
       "foreignRate": null,
-      "latestDate": "20260901"
+      "latestDate": "20260902"
     },
     {
       "ticker": "TSLA",
       "nameKr": "테슬라",
       "exchange": "NASDAQ",
       "currency": "USD",
-      "price": 356.09,
-      "change": -11.86,
-      "changePct": -3.22,
-      "prevClose": 367.95,
-      "open": 360.9,
-      "dayHigh": 362.7,
-      "dayLow": 352.96,
+      "price": 357.01,
+      "change": 0.92,
+      "changePct": 0.26,
+      "prevClose": 356.09,
+      "open": 360.41,
+      "dayHigh": 360.62,
+      "dayLow": 349.92,
       "week52High": 425.3,
       "week52Low": 298.32,
-      "volume": "35.9M",
-      "rsi": 52.86,
+      "volume": "33.5M",
+      "rsi": 53.25,
       "sparkline": [
-        328.58,
         330.88,
         332.81,
         327.51,
@@ -334,10 +333,11 @@
         354.81,
         348.75,
         367.95,
-        356.09
+        356.09,
+        357.01
       ],
       "foreignRate": null,
-      "latestDate": "20260901"
+      "latestDate": "20260902"
     },
     {
       "ticker": "SPCX",
@@ -347,19 +347,18 @@
       "isNewlyListed": true,
       "ipoDate": "2026-06-12",
       "ipoPrice": 135,
-      "price": 142.23,
-      "change": -1.46,
-      "changePct": -1.02,
-      "prevClose": 143.69,
-      "open": 141.87,
-      "dayHigh": 145.23,
-      "dayLow": 141.167,
+      "price": 140.71,
+      "change": -1.52,
+      "changePct": -1.07,
+      "prevClose": 142.23,
+      "open": 142.68,
+      "dayHigh": 143.1,
+      "dayLow": 138.17,
       "week52High": 201.8,
       "week52Low": 108.27,
-      "volume": "52.7M",
-      "rsi": 54.99,
+      "volume": "49.6M",
+      "rsi": 53.52,
       "sparkline": [
-        133.11,
         138.74,
         133.29,
         146.15,
@@ -376,10 +375,11 @@
         140.87,
         141.5,
         143.69,
-        142.23
+        142.23,
+        140.71
       ],
       "foreignRate": null,
-      "latestDate": "20260901"
+      "latestDate": "20260902"
     },
     {
       "ticker": "TLTW",
@@ -387,19 +387,18 @@
       "exchange": "AMEX",
       "currency": "USD",
       "isETF": true,
-      "price": 21.25,
-      "change": -0.08,
-      "changePct": -0.38,
-      "prevClose": 21.33,
-      "open": 21.25,
-      "dayHigh": 21.365,
-      "dayLow": 21.22,
+      "price": 21.14,
+      "change": -0.11,
+      "changePct": -0.52,
+      "prevClose": 21.25,
+      "open": 21.16,
+      "dayHigh": 21.16,
+      "dayLow": 21.08,
       "week52High": 22.54,
       "week52Low": 21.02,
-      "volume": "1.1M",
-      "rsi": 44.1,
+      "volume": "996.7K",
+      "rsi": 40.45,
       "sparkline": [
-        21.36,
         21.18,
         21.23,
         21.19,
@@ -416,10 +415,11 @@
         21.45,
         21.4,
         21.33,
-        21.25
+        21.25,
+        21.14
       ],
       "foreignRate": null,
-      "latestDate": "20260901"
+      "latestDate": "20260902"
     },
     {
       "ticker": "473330",
@@ -427,19 +427,18 @@
       "exchange": "KOSPI",
       "currency": "KRW",
       "isETF": true,
-      "price": 7870,
-      "change": -85,
-      "changePct": -1.07,
-      "prevClose": 7955,
-      "open": 7905,
-      "dayHigh": 7905,
-      "dayLow": 7855,
+      "price": 7830,
+      "change": -40,
+      "changePct": -0.51,
+      "prevClose": 7870,
+      "open": 7870,
+      "dayHigh": 7880,
+      "dayLow": 7830,
       "week52High": 9363,
-      "week52Low": 7870,
-      "volume": "309.1K",
-      "rsi": 28,
+      "week52Low": 7830,
+      "volume": "211.5K",
+      "rsi": 26.57,
       "sparkline": [
-        8253,
         8174,
         8204,
         8099,
@@ -456,10 +455,11 @@
         8075,
         7985,
         7955,
-        7870
+        7870,
+        7830
       ],
-      "foreignRate": null,
-      "latestDate": "20260901"
+      "foreignRate": 0.01,
+      "latestDate": "20260902"
     }
   ],
   "krStocks": [
@@ -468,19 +468,18 @@
       "nameKr": "삼성전자",
       "exchange": "KOSPI",
       "currency": "KRW",
-      "price": 261000,
-      "change": 1000,
-      "changePct": 0.38,
-      "prevClose": 260000,
-      "open": 256500,
-      "dayHigh": 262500,
-      "dayLow": 254000,
+      "price": 250500,
+      "change": -10500,
+      "changePct": -4.02,
+      "prevClose": 261000,
+      "open": 252000,
+      "dayHigh": 255500,
+      "dayLow": 249500,
       "week52High": 362500,
       "week52Low": 207000,
-      "volume": "12.8M",
-      "rsi": 49.95,
+      "volume": "15.2M",
+      "rsi": 46.42,
       "sparkline": [
-        230500,
         231000,
         230000,
         239500,
@@ -497,29 +496,29 @@
         266000,
         257000,
         260000,
-        261000
+        261000,
+        250500
       ],
-      "foreignRate": 46.72,
-      "latestDate": "20260901"
+      "foreignRate": 46.71,
+      "latestDate": "20260902"
     },
     {
       "ticker": "000660",
       "nameKr": "SK하이닉스",
       "exchange": "KOSPI",
       "currency": "KRW",
-      "price": 1693000,
-      "change": 19000,
-      "changePct": 1.14,
-      "prevClose": 1674000,
-      "open": 1666000,
-      "dayHigh": 1713000,
-      "dayLow": 1652000,
+      "price": 1613000,
+      "change": -80000,
+      "changePct": -4.73,
+      "prevClose": 1693000,
+      "open": 1630000,
+      "dayHigh": 1661000,
+      "dayLow": 1612000,
       "week52High": 2919000,
       "week52Low": 1322000,
       "volume": "2.5M",
-      "rsi": 49.81,
+      "rsi": 46.16,
       "sparkline": [
-        1495000,
         1422000,
         1420000,
         1425000,
@@ -536,10 +535,11 @@
         1730000,
         1653000,
         1674000,
-        1693000
+        1693000,
+        1613000
       ],
-      "foreignRate": 50.56,
-      "latestDate": "20260901"
+      "foreignRate": 50.57,
+      "latestDate": "20260902"
     }
   ]
 }
