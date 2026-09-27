@@ -1,7 +1,7 @@
 {
   "meta": {
-    "asOf": "2026-09-27 08:20 KST",
-    "generatedAt": "2026-09-26T23:20:47.737Z",
+    "asOf": "2026-09-28 08:34 KST",
+    "generatedAt": "2026-09-27T23:34:29.726Z",
     "source": "Npay · CNBC · ECB · CNN",
     "marketStatus": {
       "us": {
@@ -53,18 +53,18 @@
       "label": "美 10Y",
       "region": "BOND",
       "unit": "%",
-      "value": 5.165,
-      "change": 0.003,
-      "changePct": 0.06
+      "value": 5.198,
+      "change": 0.017,
+      "changePct": 0.33
     },
     {
       "id": "ust30",
       "label": "美 30Y",
       "region": "BOND",
       "unit": "%",
-      "value": 5.49,
-      "change": 0.028,
-      "changePct": 0.51
+      "value": 5.515,
+      "change": 0.013,
+      "changePct": 0.24
     },
     {
       "id": "kospi",
@@ -458,7 +458,7 @@
         7800,
         7805
       ],
-      "foreignRate": null,
+      "foreignRate": 0.01,
       "latestDate": "20260923"
     }
   ],
@@ -477,7 +477,7 @@
       "dayLow": 281000,
       "week52High": 334000,
       "week52Low": 207000,
-      "volume": "19.4M",
+      "volume": "20.9M",
       "rsi": 61.92,
       "sparkline": [
         260000,
@@ -499,7 +499,7 @@
         277500,
         286500
       ],
-      "foreignRate": 46.55,
+      "foreignRate": 46.64,
       "latestDate": "20260923"
     },
     {
@@ -538,7 +538,7 @@
         1841000,
         1863000
       ],
-      "foreignRate": 50.15,
+      "foreignRate": 50.06,
       "latestDate": "20260923"
     }
   ]
