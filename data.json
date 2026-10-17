@@ -1,7 +1,7 @@
 {
   "meta": {
-    "asOf": "2026-10-17 08:13 KST",
-    "generatedAt": "2026-10-16T23:13:20.176Z",
+    "asOf": "2026-10-18 07:50 KST",
+    "generatedAt": "2026-10-17T22:50:19.473Z",
     "source": "Npay · CNBC · ECB · CNN",
     "marketStatus": {
       "us": {
@@ -30,6 +30,14 @@
       "value": 29187.55,
       "change": -748.05,
       "changePct": -2.5
+    },
+    {
+      "id": "sox",
+      "label": "PHLX 반도체",
+      "region": "US",
+      "value": 11137.29,
+      "change": -443.93,
+      "changePct": -3.83
     },
     {
       "id": "usdkrw",
@@ -79,7 +87,7 @@
     "value": 18,
     "valueExact": 17.94,
     "label": "Extreme Fear",
-    "asOf": "2026-10-16T22:57:01+00:00",
+    "asOf": "2026-10-16T23:59:49+00:00",
     "previous": {
       "yesterday": 32,
       "weekAgo": 46,
@@ -148,7 +156,7 @@
       "dayLow": 93.445,
       "week52High": 164.27,
       "week52Low": 91.99,
-      "volume": "1.1억",
+      "volume": "1.2억",
       "rsi": 29.98,
       "sparkline": [
         146.25,
@@ -189,7 +197,7 @@
       "dayLow": 87.045,
       "week52High": 100.77,
       "week52Low": 77.58,
-      "volume": "6.5M",
+      "volume": "6.7M",
       "rsi": 34.44,
       "sparkline": [
         96.16,
@@ -267,7 +275,7 @@
       "dayLow": 339.0801,
       "week52High": 377.65,
       "week52Low": 317.69,
-      "volume": "28.1M",
+      "volume": "28.6M",
       "rsi": 44.5,
       "sparkline": [
         337.83,
@@ -302,11 +310,11 @@
       "changePct": -2.13,
       "prevClose": 362.44,
       "open": 369.145,
-      "dayHigh": 370.5799,
+      "dayHigh": 370.5,
       "dayLow": 349.33,
       "week52High": 382.7,
       "week52Low": 298.32,
-      "volume": "61.6M",
+      "volume": "62.1M",
       "rsi": 41.93,
       "sparkline": [
         380.12,
@@ -348,7 +356,7 @@
       "dayLow": 142.95,
       "week52High": 171.92,
       "week52Low": 108.27,
-      "volume": "87.3M",
+      "volume": "88.6M",
       "rsi": 43.36,
       "sparkline": [
         148.36,
@@ -388,7 +396,7 @@
       "dayLow": 20.56,
       "week52High": 21.77,
       "week52Low": 19.885,
-      "volume": "2.2M",
+      "volume": "2.4M",
       "rsi": 53.88,
       "sparkline": [
         20.88,
