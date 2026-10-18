@@ -1,7 +1,7 @@
 {
   "meta": {
-    "asOf": "2026-10-18 07:50 KST",
-    "generatedAt": "2026-10-17T22:50:19.473Z",
+    "asOf": "2026-10-19 07:42 KST",
+    "generatedAt": "2026-10-18T22:42:45.605Z",
     "source": "Npay · CNBC · ECB · CNN",
     "marketStatus": {
       "us": {
@@ -54,8 +54,8 @@
       "region": "BOND",
       "unit": "%",
       "value": 5.081,
-      "change": -0.006,
-      "changePct": -0.12
+      "change": -0.017,
+      "changePct": -0.33
     },
     {
       "id": "ust30",
@@ -63,8 +63,8 @@
       "region": "BOND",
       "unit": "%",
       "value": 5.428,
-      "change": 0,
-      "changePct": 0
+      "change": -0.009,
+      "changePct": -0.17
     },
     {
       "id": "kospi",
