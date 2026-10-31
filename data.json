@@ -1,7 +1,7 @@
 {
   "meta": {
-    "asOf": "2026-10-31 09:19 KST",
-    "generatedAt": "2026-10-31T00:19:11.457Z",
+    "asOf": "2026-11-01 08:55 KST",
+    "generatedAt": "2026-10-31T23:55:21.822Z",
     "source": "Npay · CNBC · ECB · CNN",
     "marketStatus": {
       "us": {
@@ -197,7 +197,7 @@
       "dayLow": 80.82,
       "week52High": 100.77,
       "week52Low": 82.59,
-      "volume": "8.0M",
+      "volume": "8.2M",
       "rsi": 34.45,
       "sparkline": [
         100.23,
@@ -275,7 +275,7 @@
       "dayLow": 276.92,
       "week52High": 377.65,
       "week52Low": 279.84,
-      "volume": "64.4M",
+      "volume": "65.7M",
       "rsi": 20.91,
       "sparkline": [
         350.5,
@@ -314,7 +314,7 @@
       "dayLow": 387.52,
       "week52High": 407.46,
       "week52Low": 319.53,
-      "volume": "41.4M",
+      "volume": "41.7M",
       "rsi": 61.23,
       "sparkline": [
         377.81,
